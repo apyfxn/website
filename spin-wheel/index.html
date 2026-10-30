@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spin the Wheel — Giveaway Picker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Add your entries, spin the wheel, and pick a giveaway winner live.">
+<meta name="theme-color" content="#1a0e2e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A1%3C/text%3E%3C/svg%3E">
+
+<meta property="og:title" content="Spin the Wheel — Giveaway Picker">
+<meta property="og:description" content="Add your entries, spin the wheel, and pick a giveaway winner live.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --ig-purple:#5B2A86;
+    --ig-pink:#E1306C;
+    --ig-orange:#F77737;
+    --ig-yellow:#FCAF45;
+    --bg-deep:#1a0e2e;
+    --card:#241338;
+    --text:#fdf7ff;
+    --muted:#c8b8dd;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Helvetica Neue',Arial,sans-serif;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(247,119,55,.35), transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(225,48,108,.35), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(91,42,134,.5), transparent 55%),
+      var(--bg-deep);
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 60px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:4px;
+  }
+  .brand svg{width:28px;height:28px;}
+  .brand span{
+    font-weight:800;
+    letter-spacing:.5px;
+    font-size:20px;
+    background:linear-gradient(90deg,var(--ig-yellow),var(--ig-orange),var(--ig-pink),var(--ig-purple));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  h1{
+    font-size:clamp(24px,5vw,38px);
+    margin:6px 0 2px;
+    text-align:center;
+    letter-spacing:.5px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:28px;
+    text-align:center;
+    max-width:480px;
+  }
+  .subtitle b{color:var(--text);}
+
+  .layout{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:center;
+    gap:48px;
+    width:100%;
+    max-width:1280px;
+  }
+  .left-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:min(92vw,560px);
+  }
+  .right-col{
+    display:flex;
+    justify-content:center;
+    width:min(92vw,640px);
+  }
+  .entry-panel{
+    width:100%;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    padding:20px 22px 22px;
+    margin-bottom:24px;
+  }
+  .entry-panel label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:8px;
+  }
+  .entry-panel label span{color:var(--ig-yellow);}
+  .entry-panel textarea{
+    width:100%;
+    min-height:300px;
+    resize:vertical;
+    background:rgba(0,0,0,.25);
+    border:1px solid rgba(255,255,255,.15);
+    border-radius:12px;
+    color:var(--text);
+    font-size:15px;
+    font-family:inherit;
+    padding:14px 16px;
+    line-height:1.5;
+    margin-bottom:12px;
+  }
+  .entry-panel textarea:focus{
+    outline:none;
+    border-color:var(--ig-pink);
+    box-shadow:0 0 0 3px rgba(225,48,108,.25);
+  }
+  #enterBtn{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    width:100%;
+    padding:12px;
+    font-size:14px;
+    font-weight:800;
+    letter-spacing:.8px;
+    border-radius:10px;
+    color:#fff;
+    background:linear-gradient(90deg,var(--ig-orange),var(--ig-pink));
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  #enterBtn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(225,48,108,.35);}
+  #enterBtn:active{transform:translateY(0);}
+
+  /* fixed control, bottom-left corner of the page */
+  .admin-toggle-wrap{
+    position:fixed;
+    left:14px;
+    bottom:14px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:8px;
+    z-index:40;
+    background:rgba(36,19,56,.9);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:10px;
+    padding:6px;
+    backdrop-filter:blur(4px);
+    box-shadow:0 6px 20px rgba(0,0,0,.4);
+  }
+  .admin-toggle-wrap[hidden]{display:none;}
+  .admin-toggle{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    background:rgba(255,255,255,.08);
+    color:var(--text);
+    font-size:15px;
+    padding:6px 9px;
+    border-radius:7px;
+    line-height:1;
+  }
+  .admin-toggle:hover{background:rgba(255,255,255,.16);}
+  .admin-panel{
+    display:none;
+    align-items:center;
+    gap:6px;
+  }
+  .admin-panel.open{display:flex;}
+  .admin-panel input{
+    width:130px;
+    background:rgba(0,0,0,.3);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:6px;
+    color:var(--text);
+    font-size:12px;
+    font-family:inherit;
+    padding:6px 9px;
+  }
+  .admin-panel input:focus{
+    outline:none;
+    border-color:var(--ig-yellow);
+  }
+  .admin-panel #setWinnerBtn{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    padding:6px 11px;
+    font-size:12px;
+    font-weight:700;
+    border-radius:6px;
+    color:#1a0e2e;
+    background:var(--ig-yellow);
+  }
+  .admin-panel #winnerStatus{
+    font-size:10px;
+    color:var(--muted);
+  }
+
+
+  .wheel-wrap{
+    position:relative;
+    width:min(92vw,640px);
+    aspect-ratio:1/1;
+  }
+  .pointer{
+    position:absolute;
+    top:-4px;
+    left:50%;
+    transform:translateX(-50%);
+    width:0; height:0;
+    border-left:16px solid transparent;
+    border-right:16px solid transparent;
+    border-top:28px solid var(--ig-yellow);
+    filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+    z-index:5;
+  }
+  .pointer::after{
+    content:'';
+    position:absolute;
+    top:-30px;
+    left:-16px;
+    width:32px;height:32px;
+    border-radius:50%;
+    background:var(--ig-yellow);
+    z-index:-1;
+    display:none;
+  }
+  canvas#wheel{
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    display:block;
+    box-shadow:
+      0 0 0 8px var(--card),
+      0 0 0 11px rgba(255,255,255,.08),
+      0 20px 60px rgba(0,0,0,.55);
+    transition:transform 0ms;
+  }
+  .hub{
+    position:absolute;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    width:17%;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, var(--ig-yellow) 45%, var(--ig-orange) 100%);
+    box-shadow:0 4px 14px rgba(0,0,0,.5), inset 0 0 0 3px rgba(255,255,255,.6);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    z-index:4;
+  }
+
+  #spinBtn{
+    appearance:none;
+    border:none;
+    cursor:pointer;
+    padding:16px 46px;
+    font-size:17px;
+    font-weight:800;
+    letter-spacing:.5px;
+    border-radius:999px;
+    color:#fff;
+    background:linear-gradient(90deg,var(--ig-purple),var(--ig-pink),var(--ig-orange));
+    background-size:200% 100%;
+    box-shadow:0 8px 24px rgba(225,48,108,.4);
+    transition:transform .15s ease, box-shadow .15s ease, background-position .4s ease;
+  }
+  #spinBtn:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(225,48,108,.55);background-position:100% 0;}
+  #spinBtn:active{transform:translateY(0);}
+  #spinBtn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+
+  .meta{
+    margin-top:14px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(10,4,20,.75);
+    backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s ease;
+    z-index:50;
+    padding:20px;
+  }
+  .modal-overlay.show{opacity:1;pointer-events:auto;}
+  .modal{
+    background:linear-gradient(160deg,#2c1747,var(--card));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:24px;
+    padding:36px 32px 30px;
+    text-align:center;
+    max-width:360px;
+    width:100%;
+    transform:scale(.85);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 30px 80px rgba(0,0,0,.6);
+  }
+  .modal-overlay.show .modal{transform:scale(1);}
+  .modal .trophy{font-size:52px;display:block;margin-bottom:6px;}
+  .modal .label{
+    text-transform:uppercase;
+    font-size:12px;
+    letter-spacing:2px;
+    color:var(--ig-yellow);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .modal .winner{
+    font-size:26px;
+    font-weight:800;
+    word-break:break-word;
+    background:linear-gradient(90deg,var(--ig-yellow),var(--ig-pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    margin-bottom:18px;
+  }
+  .modal button{
+    appearance:none;border:none;cursor:pointer;
+    padding:12px 30px;border-radius:999px;
+    background:rgba(255,255,255,.1);
+    color:var(--text);font-weight:700;font-size:14px;
+    border:1px solid rgba(255,255,255,.25);
+  }
+  .modal button:hover{background:rgba(255,255,255,.18);}
+
+  #confetti-canvas{
+    position:fixed;inset:0;pointer-events:none;z-index:60;
+  }
+
+
+</style>
+</head>
+<body>
+
+  <h1>Spin the Wheel</h1>
+
+  <div class="layout">
+    <div class="left-col">
+      <div class="entry-panel">
+        <label for="namesInput">Entries <span id="countBadge">(0)</span></label>
+        <textarea id="namesInput" placeholder="Type or paste names — one per line, or separated by commas"></textarea>
+        <button id="enterBtn">ENTER NAMES</button>
+      </div>
+
+      <button id="spinBtn" disabled>SPIN THE WHEEL</button>
+      <div class="meta" id="meta">Enter names above to build the wheel</div>
+    </div>
+
+    <div class="right-col">
+      <div class="wheel-wrap">
+        <div class="pointer"></div>
+        <canvas id="wheel" width="900" height="900"></canvas>
+        <div class="hub" id="hub">🎯</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-toggle-wrap" id="settingsWrap" hidden>
+    <button id="adminToggle" class="admin-toggle">⚙</button>
+    <div class="admin-panel" id="adminPanel">
+      <input type="text" id="winnerInput" placeholder="winner name">
+      <button id="setWinnerBtn">Set</button>
+      <span id="winnerStatus"></span>
+    </div>
+  </div>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <span class="trophy">🏆</span>
+      <div class="label">Winner</div>
+      <div class="winner" id="winnerName">—</div>
+      <button id="closeModal">Nice!</button>
+    </div>
+  </div>
+
+<script>
+// Names start empty — the wheel begins as a big blank circle.
+// Typing/pasting names and clicking "Enter Names" populates the wheel.
+let names = [];
+
+// The rigged winner — set live via the "Set Winner" box below, no code edits needed.
+let FIXED_WINNER = "";
+
+const canvas = document.getElementById('wheel');
+const ctx = canvas.getContext('2d');
+const size = canvas.width;
+const center = size/2;
+const radius = size/2 - 6;
+
+const palette = ["#5B2A86","#8134AF","#E1306C","#F56040","#F77737","#FCAF45","#833AB4"];
+
+function drawWheel(rotation){
+  ctx.clearRect(0,0,size,size);
+  ctx.save();
+  ctx.translate(center,center);
+  ctx.rotate(rotation);
+
+  if(names.length === 0){
+    // empty state — plain circle, no segments
+    ctx.beginPath();
+    ctx.arc(0,0,radius,0,2*Math.PI);
+    ctx.fillStyle = '#2c1747';
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
+
+  const segAngle = (2*Math.PI)/names.length;
+
+  for(let i=0;i<names.length;i++){
+    const start = i*segAngle;
+    const end = start+segAngle;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,radius,start,end);
+    ctx.closePath();
+    ctx.fillStyle = palette[i % palette.length];
+    ctx.fill();
+
+    ctx.save();
+    ctx.rotate(start + segAngle/2);
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    const fontSize = names.length > 40 ? 12 : names.length > 20 ? 14 : 16;
+    ctx.font = `600 ${fontSize}px Helvetica Neue, Arial, sans-serif`;
+    let label = names[i];
+    const maxLen = names.length > 40 ? 14 : 18;
+    if(label.length > maxLen) label = label.slice(0,maxLen-1)+'…';
+    ctx.fillText(label, radius - 14, 0);
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+drawWheel(0);
+
+let currentRotation = 0;
+let spinning = false;
+const spinBtn = document.getElementById('spinBtn');
+const meta = document.getElementById('meta');
+const modalOverlay = document.getElementById('modalOverlay');
+const winnerNameEl = document.getElementById('winnerName');
+const closeModalBtn = document.getElementById('closeModal');
+const namesInput = document.getElementById('namesInput');
+const enterBtn = document.getElementById('enterBtn');
+const countBadge = document.getElementById('countBadge');
+const winnerInput = document.getElementById('winnerInput');
+const setWinnerBtn = document.getElementById('setWinnerBtn');
+const winnerStatus = document.getElementById('winnerStatus');
+
+function setWinner(){
+  const val = winnerInput.value.trim();
+  FIXED_WINNER = val;
+  if(val){
+    winnerStatus.textContent = `→ locked to "${val}"`;
+  }else{
+    winnerStatus.textContent = "";
+  }
+}
+
+setWinnerBtn.addEventListener('click', setWinner);
+winnerInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') setWinner();
+});
+
+const settingsWrap = document.getElementById('settingsWrap');
+document.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && e.key.toLowerCase() === 's'){
+    e.preventDefault();
+    if(e.repeat) return;
+    settingsWrap.hidden = !settingsWrap.hidden;
+  }
+}, true);
+const adminToggle = document.getElementById('adminToggle');
+const adminPanel = document.getElementById('adminPanel');
+adminToggle.addEventListener('click', ()=>{
+  adminPanel.classList.toggle('open');
+});
+
+function parseNames(raw){
+  return raw
+    .split(/[\n,]/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+}
+
+function loadNames(){
+  const parsed = parseNames(namesInput.value);
+  names = parsed;
+  countBadge.textContent = `(${names.length})`;
+  currentRotation = 0;
+  drawWheel(0);
+  if(names.length > 0){
+    spinBtn.disabled = false;
+    meta.textContent = `${names.length} ${names.length===1?'entry':'entries'} loaded • tap spin to pick a winner`;
+  }else{
+    spinBtn.disabled = true;
+    meta.textContent = "Enter names above to build the wheel";
+  }
+}
+
+enterBtn.addEventListener('click', loadNames);
+namesInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && (e.metaKey || e.ctrlKey)){
+    loadNames();
+  }
+});
+
+function easeOutQuint(t){ return 1 - Math.pow(1-t, 5); }
+
+function pickWinnerIndex(){
+  // Always resolves to FIXED_WINNER if it's set and present, otherwise falls back to random.
+  if(FIXED_WINNER){
+    const idx = names.findIndex(n => n.toLowerCase() === FIXED_WINNER.toLowerCase());
+    if(idx !== -1) return idx;
+  }
+  return Math.floor(Math.random()*names.length);
+}
+
+// Unlock audio on the spin click so it can play when the animation finishes.
+let celebrationAudio;
+function prepareCelebrationAudio(){
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if(!AudioContextClass) return;
+  try{
+    if(!celebrationAudio) celebrationAudio = new AudioContextClass();
+    if(celebrationAudio.state === 'suspended') celebrationAudio.resume().catch(()=>{});
+  }catch(error){}
+}
+
+function playCelebrationSound(){
+  if(!celebrationAudio || celebrationAudio.state !== 'running') return;
+  const audio = celebrationAudio;
+  const start = audio.currentTime;
+  const master = audio.createGain();
+  master.gain.value = 0.22;
+  master.connect(audio.destination);
+
+  // A short confetti pop.
+  const buffer = audio.createBuffer(1, Math.ceil(audio.sampleRate * 0.22), audio.sampleRate);
+  const samples = buffer.getChannelData(0);
+  for(let i = 0; i < samples.length; i++){
+    samples[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / samples.length, 3);
+  }
+  const pop = audio.createBufferSource();
+  pop.buffer = buffer;
+  const filter = audio.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 2400;
+  pop.connect(filter);
+  filter.connect(master);
+  pop.start(start);
+
+  setTimeout(()=>master.disconnect(), 500);
+}
+
+function spin(){
+  if(spinning || names.length === 0) return;
+  prepareCelebrationAudio();
+  spinning = true;
+  spinBtn.disabled = true;
+  meta.textContent = "Spinning…";
+
+  const segAngle = (2*Math.PI)/names.length;
+  const winnerIndex = pickWinnerIndex();
+
+  // Angle (in the unrotated wheel) at the center of the winning segment
+  const segCenter = winnerIndex*segAngle + segAngle/2;
+  // small randomized jitter within the segment so it doesn't always stop dead-center
+  const jitter = (Math.random()-0.5) * (segAngle*0.6);
+
+  // The pointer is fixed at the top (angle = -PI/2 in canvas terms, i.e. 270deg / -90deg).
+  // We need: (currentRotation_end + segCenter + jitter) ≡ -PI/2 (mod 2PI)
+  const pointerAngle = -Math.PI/2;
+  const extraSpins = 6 + Math.floor(Math.random()*3); // full rotations for drama
+  let targetRotation = pointerAngle - (segCenter + jitter) + extraSpins*2*Math.PI;
+
+  // normalize so target is always forward of current rotation
+  while(targetRotation < currentRotation + extraSpins*2*Math.PI - 2*Math.PI){
+    targetRotation += 2*Math.PI;
+  }
+
+  const startRotation = currentRotation;
+  const delta = targetRotation - startRotation;
+  const duration = 5200;
+  const startTime = performance.now();
+
+  function frame(now){
+    const elapsed = now - startTime;
+    const t = Math.min(elapsed/duration, 1);
+    const eased = easeOutQuint(t);
+    currentRotation = startRotation + delta*eased;
+    drawWheel(currentRotation);
+
+    if(t < 1){
+      requestAnimationFrame(frame);
+    }else{
+      spinning = false;
+      spinBtn.disabled = false;
+      meta.textContent = `${names.length} ${names.length===1?'entry':'entries'} loaded • tap spin to pick a winner`;
+      announceWinner(names[winnerIndex]);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function announceWinner(name){
+  winnerNameEl.textContent = "@" + name;
+  modalOverlay.classList.add('show');
+  launchConfetti();
+  playCelebrationSound();
+}
+
+closeModalBtn.addEventListener('click', ()=>{
+  modalOverlay.classList.remove('show');
+});
+modalOverlay.addEventListener('click', (e)=>{
+  if(e.target === modalOverlay) modalOverlay.classList.remove('show');
+});
+
+spinBtn.addEventListener('click', spin);
+
+// Winner box starts empty — nobody is rigged until you type a name and click "Set Winner".
+
+// ---- confetti ----
+const confettiCanvas = document.getElementById('confetti-canvas');
+const cctx = confettiCanvas.getContext('2d');
+function resizeConfetti(){
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+}
+resizeConfetti();
+window.addEventListener('resize', resizeConfetti);
+
+let confettiParticles = [];
+const confettiColors = ["#E1306C","#F77737","#FCAF45","#8134AF","#5B2A86","#F56040"];
+
+function launchConfetti(){
+  confettiParticles = [];
+  const count = 140;
+  for(let i=0;i<count;i++){
+    confettiParticles.push({
+      x: confettiCanvas.width/2,
+      y: confettiCanvas.height*0.35,
+      vx: (Math.random()-0.5)*14,
+      vy: (Math.random()*-14)-4,
+      size: Math.random()*7+4,
+      color: confettiColors[Math.floor(Math.random()*confettiColors.length)],
+      rot: Math.random()*Math.PI*2,
+      vr: (Math.random()-0.5)*0.3,
+      life: 0
+    });
+  }
+  requestAnimationFrame(confettiLoop);
+}
+
+function confettiLoop(){
+  cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  let alive = false;
+  for(const p of confettiParticles){
+    p.life++;
+    p.vy += 0.35;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rot += p.vr;
+    if(p.life < 220){
+      alive = true;
+      cctx.save();
+      cctx.translate(p.x,p.y);
+      cctx.rotate(p.rot);
+      cctx.fillStyle = p.color;
+      cctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      cctx.restore();
+    }
+  }
+  if(alive){
+    requestAnimationFrame(confettiLoop);
+  }else{
+    cctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  }
+}
+</script>
+</body>
+</html>
