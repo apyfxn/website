@@ -563,6 +563,25 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
 /* gentle motion that answers actions only */
 .file,textarea,.fc,.seg button,.chips button,button{transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ===== Audio section ===== */
+body.audioMode .lyOnly{display:none!important}
+body:not(.audioMode) .auOnly{display:none!important}
+.modeBar{margin:2px 0 14px}
+#sMode{display:flex;width:100%}
+#sMode button{flex:1;min-height:34px!important}
+.file{min-width:0}
+.file.ok small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fileX{display:none;position:absolute;right:12px;top:50%;transform:translateY(-50%);width:26px;height:26px;padding:0;border:0;border-radius:50%;place-items:center;background:var(--a-fill,rgba(120,120,128,.25));color:var(--a-mu,#888);font:inherit;font-size:13px;line-height:1;cursor:pointer;z-index:2}
+.fileX:hover{background:rgba(255,59,48,.2);color:#ff453a}
+.file.ok .fileX{display:grid}
+#fb.ok::after,#fg.ok::after,#fc.ok::after{display:none!important}
+.file.ok{padding-right:48px!important}
+.auOnly{margin-top:4px}
+.auOnly .row{margin:12px 0 8px}
+.auIn{display:block;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--a-line,#d4d4cb);background:var(--a-surf,#fff);color:var(--a-tx,#222);font:inherit;font-size:13.5px}
+.auIn:focus{outline:0;border-color:var(--a-blue,#0a84ff);box-shadow:0 0 0 4px var(--a-blue-soft,rgba(10,132,255,.2))}
+.auIn::placeholder{color:var(--a-mu,#888);opacity:.75}
 </style></head><body>
 <main class="wrap"><div class="grid">
 <section class="left">
@@ -576,13 +595,17 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
   
   <div class="bar"><i id="pb"></i></div><div id="msg" role="status" aria-live="polite" aria-atomic="true">Add a song and lyrics to begin.</div><div class="appr" role="group" aria-label="Appearance"><button type="button" data-a="rose" title="Rose" aria-label="Rose accent"></button><button type="button" data-a="violet" title="Violet" aria-label="Violet accent"></button><button type="button" data-a="azure" title="Azure" aria-label="Azure accent"></button><button type="button" data-a="emerald" title="Emerald" aria-label="Emerald accent"></button><button type="button" data-a="amber" title="Amber" aria-label="Amber accent"></button><i></i><button type="button" id="uiMode" class="mode" title="Light or dark"></button></div><button class="infoBtn" id="helpOpen" type="button" aria-label="Help and information" title="Help">i</button></div></section>
 <aside>
- <div class="card"><h2 data-i="♪">Song and lyrics</h2><p>Lyrics need timestamps like [00:03.64]. A line without a timestamp goes on a new line under the lyric above it, exactly as you type it.</p>
+ <div class="card"><div class="modeBar"><div class="seg" id="sMode" role="group" aria-label="Section"><button type="button" data-v="lyrics" class="on">Lyrics</button><button type="button" data-v="audio">Audio</button></div></div><h2 data-i="♪">Song and lyrics</h2><p>Lyrics need timestamps like [00:03.64]. A line without a timestamp goes on a new line under the lyric above it, exactly as you type it.</p>
   <label class="file" id="fa">Song<small id="fan">Choose an audio file (MP3, WAV, M4A)</small><input type="file" id="ia" accept="audio/*"></label>
-  <label class="file" id="fl">Lyrics file<small>Choose a .lrc or .txt file</small><input type="file" id="il" accept=".lrc,.txt,text/plain"></label>
-  <div class="metaLine" id="meta"><span id="metaTx">Song and artist are read from your song and lyrics files.</span><button type="button" id="metaSwap" hidden title="Swap song and artist">⇄ Swap</button></div>
-  <textarea id="lt" placeholder="[00:03.64] First line&#10;second line of the same lyric&#10;[00:09.90] Next lyric"></textarea>
+  <div class="auOnly" id="auBox">
+   <label class="file" id="fc">Cover photo<small id="fcn">Optional. Fills the player box.</small><input type="file" id="ic" accept="image/*"><button type="button" class="fileX" id="fcX" title="Remove" aria-label="Remove">✕</button></label>
+   <div class="row"><span>Box size</span><input type="range" id="aSz" min="40" max="140" value="75" aria-label="Box size"><span class="t" id="aSzl" style="min-width:48px">75%</span></div>
   </div>
- <div class="card sideCollapsed"><h2 data-i="Aa" aria-expanded="false">Font</h2><p>Pick a font, or add your own from your device.</p>
+  <label class="file lyOnly" id="fl">Lyrics file<small>Choose a .lrc or .txt file</small><input type="file" id="il" accept=".lrc,.txt,text/plain"></label>
+  <div class="metaLine lyOnly" id="meta"><span id="metaTx">Song and artist are read from your song and lyrics files.</span><button type="button" id="metaSwap" hidden title="Swap song and artist">⇄ Swap</button></div>
+  <textarea id="lt" class="lyOnly" placeholder="[00:03.64] First line&#10;second line of the same lyric&#10;[00:09.90] Next lyric"></textarea>
+  </div>
+ <div class="card sideCollapsed lyOnly"><h2 data-i="Aa" aria-expanded="false">Font</h2><p>Pick a font, or add your own from your device.</p>
   <div class="fonts" id="fgrid"></div>
   <label class="file" id="ff">Add fonts from your device<small>TTF, OTF, WOFF or WOFF2. Select several at once.</small><input type="file" id="fi" accept=".ttf,.otf,.woff,.woff2" multiple></label>
   <div class="row"><span>Text size</span><input type="range" id="sz" min="50" max="160" value="113" aria-label="Text size"></div>
@@ -598,9 +621,10 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
   <div class="row"><span>Speed</span><input type="range" id="amp" min="50" max="200" value="100" aria-label="Animation speed"></div></div>
  <div class="card sideCollapsed"><h2 data-i="◐" aria-expanded="false">Look</h2><p>Shape, color and artwork.</p>
   
-  <div class="row"><span>Capitals</span><div class="seg" id="sUp"><button data-v="1" class="on">On</button><button data-v="0">Off</button></div></div>
+  <div class="row lyOnly"><span>Capitals</span><div class="seg" id="sUp"><button data-v="1" class="on">On</button><button data-v="0">Off</button></div></div>
   <div class="row"><span>Shadow</span><input type="range" id="sh" min="0" max="100" value="0" aria-label="Text shadow"></div>
-  <div class="row"><span>Text color</span><div class="sw" id="sw"><input type="color" id="tc" value="#ffffff" aria-label="Text color"></div></div>
+  <div class="row"><span>Texture</span><input type="range" id="aTx" min="0" max="100" value="0" aria-label="Texture"><span class="t" id="aTxl" style="min-width:48px">0%</span></div>
+  <div class="row lyOnly"><span>Text color</span><div class="sw" id="sw"><input type="color" id="tc" value="#ffffff" aria-label="Text color"></div></div>
   <div class="bgc" id="pcc"><strong style="font-size:14px">Particles</strong><small>White particles that fade in and out behind the text.</small>
    <div class="row"><button class="s" id="pcT" aria-pressed="true" style="padding:8px 16px;font-size:14px">✨ On</button><button class="s" id="pcR" style="padding:8px 16px;font-size:14px">Reset particles</button></div>
    <div class="row"><span>Amount</span><input type="range" id="pca" min="0" max="100" value="15" aria-label="Particle amount"><span class="t" id="pcal" style="min-width:48px">15%</span></div>
@@ -609,13 +633,13 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
    <div class="row"><span>Brightness</span><input type="range" id="pcb" min="10" max="100" value="95" aria-label="Particle brightness"><span class="t" id="pcbl" style="min-width:48px">95%</span></div>
    <div class="row"><span>Sideways</span><input type="range" id="pcx" min="0" max="200" value="105" aria-label="Particle sideways movement"><span class="t" id="pcxl" style="min-width:48px">105%</span></div>
    <div class="row"><span>Upward</span><input type="range" id="pcu" min="0" max="200" value="100" aria-label="Particle upward movement"><span class="t" id="pcul" style="min-width:48px">100%</span></div></div>
-  <label class="file" id="fb">Background image<small id="fbn">Optional. The default is a night sky.</small><input type="file" id="ib" accept="image/*"></label>
+  <label class="file" id="fb">Background image<small id="fbn">Optional. The default is a night sky.</small><input type="file" id="ib" accept="image/*"><button type="button" class="fileX" id="fbX" title="Remove" aria-label="Remove">✕</button></label>
   <div class="bgc" id="bgc" hidden><strong style="font-size:14px">Position background</strong><small>Drag the preview to move it. Scroll or pinch on the preview to zoom. Press Lock when it looks right.</small>
    <div class="row"><span>Zoom</span><input type="range" id="bz" min="20" max="500" value="100" aria-label="Background zoom"><span class="t" id="bzl" style="min-width:48px">100%</span></div>
    <div class="row"><span>Left / right</span><input type="range" id="bx" min="-100" max="100" value="0" aria-label="Background horizontal position"></div>
    <div class="row"><span>Up / down</span><input type="range" id="by" min="-100" max="100" value="0" aria-label="Background vertical position"></div>
    <div class="row"><button class="s" id="bLock" aria-pressed="false" style="padding:8px 16px;font-size:14px">🔓 Lock</button><button class="s" id="bFill" style="padding:8px 16px;font-size:14px">Fill</button><button class="s" id="bFit" style="padding:8px 16px;font-size:14px">Fit whole image</button><button class="s" id="bRst" style="padding:8px 16px;font-size:14px">Reset</button></div></div>
-  <label class="file" id="fg">Logo at the bottom<small id="fgn">Optional. Any image (PNG, JPG, GIF, WebP, SVG…) or video (MP4, MOV, WebM, AVI…). Animated GIF, WebP, APNG and video logos play and loop.</small><input type="file" id="ig" accept="image/*,video/*,.gif,.apng,.webp,.avif,.svg,.bmp,.ico,.tif,.tiff,.mp4,.m4v,.mov,.webm,.ogv,.mkv,.avi,.wmv,.flv,.mpg,.mpeg,.3gp"></label>
+  <label class="file" id="fg">Logo at the bottom<small id="fgn">Optional. Any image (PNG, JPG, GIF, WebP, SVG…) or video (MP4, MOV, WebM, AVI…). Animated GIF, WebP, APNG and video logos play and loop.</small><input type="file" id="ig" accept="image/*,video/*,.gif,.apng,.webp,.avif,.svg,.bmp,.ico,.tif,.tiff,.mp4,.m4v,.mov,.webm,.ogv,.mkv,.avi,.wmv,.flv,.mpg,.mpeg,.3gp"><button type="button" class="fileX" id="fgX" title="Remove" aria-label="Remove">✕</button></label>
   <div class="bgc" id="lgc" hidden><strong style="font-size:14px">Logo size and position</strong><small>Drag the logo on the preview to move it anywhere, or use the sliders.</small>
    <div class="row"><span>Size</span><input type="range" id="lgs" min="2" max="100" value="18" aria-label="Logo size"><span class="t" id="lgsl" style="min-width:48px">18%</span></div>
    <div class="row"><span>Left / right</span><input type="range" id="lgx" min="0" max="100" step="0.5" value="50" aria-label="Logo horizontal position"></div>
@@ -670,6 +694,7 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
 <dialog id="helpDialog" aria-labelledby="helpTitle">
  <div class="helpHead"><div><span class="helpEyebrow">QUICK GUIDE</span><h2 id="helpTitle">How to use the studio</h2></div><button id="helpClose" class="helpClose" type="button" aria-label="Close help">×</button></div>
  <div class="helpBody">
+  <section><h3>Audio section</h3><p>Switch to <b>Audio</b> at the top of the left panel to make a video with only the song. A player box appears in the middle of the frame with the cover photo, song name, progress bar and buttons. Audio and Lyrics each keep their own settings, so changing one never changes the other.</p></section>
   <section><h3>Start a project</h3><p>Upload a song, then add lyrics with timestamps such as <code>[00:03.64] First line</code>. Untimestamped lines continue beneath the previous lyric.</p><p>Use the canvas to preview the result. The play button and scrubber control playback.</p></section>
   <section><h3>Time your lyrics</h3><p>Choose <b>Edit timeline</b> to open the editor. Click a lyric to select it and move the playhead. Drag a block to move it, or drag its edges to trim.</p><p>To split a lyric, place the playhead at the break, click in the lyric text where it should divide, then choose <b>Split</b>. Use <b>Merge</b>, <b>Duplicate</b>, <b>Start here</b>, and <b>End here</b> for other timing edits.</p></section>
   <section><h3>Timeline shortcuts</h3><ul><li><kbd>Space</kbd> Play or pause</li><li><kbd>S</kbd> Split at the playhead and text cursor</li><li><kbd>I</kbd> Set selected lyric start to playhead</li><li><kbd>O</kbd> Set selected lyric end to playhead</li><li><kbd>←</kbd> / <kbd>→</kbd> Nudge timing; hold <kbd>Shift</kbd> for a larger step</li><li><kbd>Delete</kbd> Remove the selected lyric</li><li><kbd>Ctrl/⌘ Z</kbd> Undo; <kbd>Ctrl/⌘ Shift Z</kbd> redo</li><li><kbd>Shift D</kbd> Duplicate the selected lyric</li><li><kbd>Alt</kbd> + scroll Zoom the timeline</li><li><kbd>Ctrl/⌘ C</kbd> Copy and <kbd>Ctrl/⌘ V</kbd> paste at the playhead</li></ul><p>In the lyric text box, <kbd>Enter</kbd> starts a new line and <kbd>Ctrl/⌘ Enter</kbd> finishes editing.</p></section>
@@ -761,7 +786,7 @@ async function loadAnim(f){
   }catch(err){}}
  if(type==='image/gif'||ext==='gif'){try{return decodeGif(await f.arrayBuffer())}catch(err){return null}}
  return null}
-function ready(){$('exp').disabled=!(S.buf&&S.lines.length);$('msg').textContent=$('exp').disabled?'Add a song and lyrics to begin.':'Ready. Check the preview, then export.'}
+function ready(){const au=S.mode==='audio';$('exp').disabled=!(au?S.buf:(S.buf&&S.lines.length));$('msg').textContent=$('exp').disabled?(au?'Add a song to begin.':'Add a song and lyrics to begin.'):'Ready. Check the preview, then export.'}
 const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');
 // drawing
 const rnd=(()=>{let a=7;return()=>(a=(a*16807)%2147483647)/2147483647})();
@@ -795,12 +820,14 @@ function particles(ctx,W,H,t){if(S.pon===false)return;const n=Math.round((S.pc||
 function frame(mc,W,H,t){let ctx=mc;
  const L=W>=H,u=Math.min(W,H);
  if(S.bg){const r=Math.max(W/S.bg.width,H/S.bg.height)*S.bgZ,w=S.bg.width*r,h=S.bg.height*r;if(S.bgZ<1||w<W||h<H){ctx.fillStyle='#000';ctx.fillRect(0,0,W,H)}ctx.drawImage(S.bg,W/2+S.bgX*W-w/2,H/2+S.bgY*H-h/2,w,h);ctx.fillStyle='rgba(0,0,0,.28)';ctx.fillRect(0,0,W,H)}
+ else if(S.mode==='audio'){audBg(ctx,W,H)}
  else{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#042c68');g.addColorStop(1,'#4268be');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
   for(const s of stars){const a=.45+.55*(.5+.5*Math.sin(s.p));ctx.fillStyle='rgba(255,255,255,'+(0.35+.65*a)+')';const r=s.r*u/1080;ctx.fillRect(s.x*W,s.y*H,Math.max(r,1),Math.max(r,1))}
   [[R1,'#122a5c'],[R2,'#081230']].forEach(([p,c])=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(0,H);p.forEach(q=>ctx.lineTo(q[0]*W,q[1]*H));ctx.lineTo(W,H);ctx.fill()})}
+  if(S.mode!=='audio'&&window.grain)window.grain(ctx,0,0,W,H,W);
   particles(ctx,W,H,t);
   // lyric
- let i=-1;for(let k=0;k<S.lines.length;k++){if(t>=S.lines[k].s&&t<S.lines[k].e+.02)i=k}
+ let i=-1;if(S.mode!=='audio')for(let k=0;k<S.lines.length;k++){if(t>=S.lines[k].s&&t<S.lines[k].e+.02)i=k}
  if(i>=0){const l=S.lines[i],fs=(L?H*.078:W*.082)*S.sz*fkOf(),txt=S.up?l.t.toUpperCase():l.t,u=Math.min(W,H)/1080,wig=S.wf>0&&S.wa>0,wx=wn(t*S.wf,1.7)*S.wa*u,wy=wn(t*S.wf,9.3)*S.wa*u;let LY=null;if(wig){LY=layer(W,H);ctx=LY.x;ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H)}ctx.save();
   ctx.font=fs+'px "'+S.font+'",Poppins,Arial,sans-serif';ctx.letterSpacing=(fs*.018)+'px';ctx.textBaseline='alphabetic';ctx.textAlign='left';
   const key=i+'|'+W+'|'+S.up;if(!cache[key]){const f0=ctx.font,s0=ctx.letterSpacing,b=fs/fkOf()/S.sz;ctx.font=b+'px \"'+(S.ref||S.font)+'\",Poppins,Arial,sans-serif';ctx.letterSpacing=(b*.018)+'px';cache[key]=wrap(ctx,txt,W*(L?.78:.84));ctx.font=f0;ctx.letterSpacing=s0}
@@ -839,6 +866,7 @@ function frame(mc,W,H,t){let ctx=mc;
     glow(0);ctx.restore()});
    ctx.restore()});
   ctx.restore();ctx.globalAlpha=1;ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;if(wig){ctx=mc;ctx.drawImage(LY.c,wx,wy)}}
+ if(S.mode==='audio')drawCard(mc,W,H,t);
  // logo
  const g=S.logo;if(g){const gs=g.anim?g.at(t):g,gw=g.videoWidth||g.naturalWidth,gh=g.videoHeight||g.naturalHeight;if(gw){const h=u*S.lgS/100,w=h*gw/gh;const lw=S.lf>0&&S.la>0,lx=lw?wn(t*S.lf,4.1)*S.la*(u/1080):0,ly=lw?wn(t*S.lf,17.7)*S.la*(u/1080):0;mc.save();mc.shadowColor='transparent';mc.shadowBlur=0;mc.shadowOffsetX=0;mc.shadowOffsetY=0;mc.globalAlpha=1;mc.filter='none';const bx=W*S.lgX/100-w/2+lx,by=H*S.lgY/100-h/2+ly;mc.drawImage(gs,bx,by,w,h);mc.restore();S.lgBox={x:bx/W,y:by/H,w:w/W,h:h/H}}}
 }
@@ -850,7 +878,7 @@ let lastA=-1;function curT(){const au=S.aud;if(!S.playing||au.paused){S.clk=null
  else if(a!==lastA){const est=S.clk.t+(n-S.clk.n);S.clk={t:est+(a-est)*.08,n};lastA=a}
  return S.clk.t+(n-S.clk.n)}
 const ambC=$('amb').getContext('2d');function ambU(){try{ambC.drawImage(pv,0,0,96,54)}catch(e){}}
-function draw(){const T=curT();frame(pc,pv.width,pv.height,T);ambU();$('tm').textContent=fmt(T)+' / '+fmt(S.dur);window.TL&&TL.tick(T)}
+function draw(){if(S.batch)return;const T=curT();frame(pc,pv.width,pv.height,T);ambU();$('tm').textContent=fmt(T)+' / '+fmt(S.dur);window.TL&&TL.tick(T)}
 // background positioning
 function bgClamp(){const b=S.bg;if(!b)return;const W=pv.width,H=pv.height,r=Math.max(W/b.width,H/b.height)*S.bgZ,iw=b.width*r/W,ih=b.height*r/H;
  const mx=Math.abs(iw-1)/2,my=Math.abs(ih-1)/2;S.bgX=Math.min(mx,Math.max(-mx,S.bgX));S.bgY=Math.min(my,Math.max(-my,S.bgY))}
@@ -889,7 +917,7 @@ S.word=1;S.sh=0;S.fb={};$('sh').oninput=e=>{S.sh=e.target.value/100;draw()};S.wg
  R.forEach(([id,k,d,l])=>{$(id).oninput=e=>{S[k]=+e.target.value/d;$(l).textContent=e.target.value+'%';draw()}});
  $('pcT').onclick=()=>{S.pon=!S.pon;sync();draw()};
  $('pcR').onclick=()=>{Object.assign(S,PD);sync();draw()};
- sync()})();
+ sync();window.pcSync=sync})();
 (()=>{const sync=()=>{$('lgs').value=S.lgS;$('lgsl').textContent=Math.round(S.lgS)+'%';$('lgx').value=S.lgX;$('lgy').value=S.lgY};
  $('lgs').oninput=e=>{S.lgS=+e.target.value;$('lgsl').textContent=Math.round(S.lgS)+'%';draw()};
  $('lgx').oninput=e=>{S.lgX=+e.target.value;draw()};$('lgy').oninput=e=>{S.lgY=+e.target.value;draw()};
@@ -913,7 +941,7 @@ $('lsp').oninput=e=>{S.lsp=e.target.value/100;$('lspl').textContent=e.target.val
 (async()=>{for(const n in PRESETS){if(['KOPIKOO','TAKUGI','QENPAVE'].includes(n.toUpperCase()))continue;try{await addFont(n,Uint8Array.from(atob(PRESETS[n]),c=>c.charCodeAt(0)).buffer)}catch(e){}}{const mi=FONTS.indexOf('Miguelle');if(mi>0)FONTS.unshift(FONTS.splice(mi,1)[0])}S.font=FONTS[0]||'';S.ref=S.font;for(const k in cache)delete cache[k];renderFonts();draw()})();
 // export
 async function exportVideo(){
- const btn=$('exp'),msg=$('msg'),pb=$('pb');btn.disabled=true;msg.classList.add('rendering');
+ const btn=$('exp'),msg=$('msg'),pb=$('pb');btn.disabled=true;S.exporting=true;msg.classList.add('rendering');
  try{
   if(!window.VideoEncoder||!window.Mp4Muxer)throw new Error('This browser can’t encode video. Use a recent Chrome, Edge, or Safari on a computer.');
   if(S.playing)$('play').click();
@@ -947,7 +975,7 @@ async function exportVideo(){
   await saveBlob(fh,new Blob([mux.target.buffer],{type:'video/mp4'}),vName);
   msg.textContent='Saved \u201c'+vName+'\u201d. '+W+'×'+H+' at '+fps+' fps · H.264 target '+Math.round(usedBitrate/1e6)+' Mbps'+(hasA?'':' · no audio encoder was available, so the file has no sound.');
  }catch(e){msg.textContent=e&&e.name=='AbortError'?'Export cancelled.':'Export stopped: '+(e.message||e);pb.style.width='0'}
- msg.classList.remove('rendering');btn.disabled=false;
+ msg.classList.remove('rendering');btn.disabled=false;S.exporting=false;draw();
 }
 $('exp').onclick=exportVideo;
 
@@ -969,7 +997,7 @@ function meta(){const t=$('lt').value,tg=k=>{const m=t.match(new RegExp('^\\s*\\
  const a=nameBits(S.audName),l=nameBits(S.lrcName),i=S.id3||{};
  let song=tg('ti')||i.title||a.song||l.song||'',artist=tg('ar')||i.artist||a.artist||'';
  if(S.swap&&song&&artist)[song,artist]=[artist,song];return{song,artist}}
-function updMeta(){const m=meta(),tx=$('metaTx'),sw=$('metaSwap');if(!tx)return;
+function updMeta(){window.auRefresh&&auRefresh();const m=meta(),tx=$('metaTx'),sw=$('metaSwap');if(!tx)return;
  tx.textContent='';if(!m.song&&!m.artist){tx.textContent='Song and artist are read from your song and lyrics files.';sw.hidden=true;return}
  tx.append('Detected: ');const b=document.createElement('b');b.textContent=m.song||'(no song name)';tx.append(b);
  if(m.artist){tx.append(' \u2014 ');const c=document.createElement('b');c.textContent=m.artist;tx.append(c)}
@@ -977,7 +1005,7 @@ function updMeta(){const m=meta(),tx=$('metaTx'),sw=$('metaSwap');if(!tx)return;
 $('metaSwap').onclick=()=>{S.swap=!S.swap;updMeta()};
 // file names, save location, thumbnail
 const clean=x=>(x||'').replace(/[\\\/:*?"<>|\u0000-\u001f]/g,'').replace(/\s+/g,' ').trim();
-function baseName(){const M=thumbData(),a=M.song,b=M.artist;return (a&&b?a+' - '+b:a||b||'Lyric video').slice(0,130).trim()+' (Lyrics)'}
+function baseName(){const M=S.mode==='audio'?auInfo():thumbData(),a=M.song,b=M.artist;return (a&&b?a+' - '+b:a||b||(S.mode==='audio'?'Audio video':'Lyric video')).replace(/[\\\/:*?"<>|]/g,'').slice(0,130).trim()+(S.mode==='audio'?' (Audio)':' (Lyrics)')}
 async function pickSave(name,mime,ext,desc){if(!window.showSaveFilePicker)return null;try{return await showSaveFilePicker({suggestedName:name,startIn:'desktop',types:[{description:desc,accept:{[mime]:[ext]}}]})}catch(e){if(e&&e.name=='AbortError')throw e;return null}}
 async function saveBlob(h,blob,name){if(h){const w=await h.createWritable();await w.write(blob);await w.close();return}const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}
 function gw(ctx,t,mw){const o=[];let c='';for(const x of t.split(' ')){const n=c?c+' '+x:x;if(c&&ctx.measureText(n).width>mw){o.push(c);c=x}else c=n}o.push(c);return o}
@@ -1162,4 +1190,123 @@ return{sync,tick:ui}})();
  const apply=()=>{R.dataset.acc=acc;R.dataset.ui=ui;bs.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.a===acc)));if(m){m.textContent=ui==='dark'?'\u263E':'\u2600';m.setAttribute('aria-label',ui==='dark'?'Switch to light mode':'Switch to dark mode')}};
  const save=()=>{try{localStorage.setItem('lvm-acc',acc);localStorage.setItem('lvm-ui',ui)}catch(e){}};
  bs.forEach(b=>b.onclick=()=>{acc=b.dataset.a;apply();save()});if(m)m.onclick=()=>{ui=ui==='dark'?'light':'dark';apply();save()};apply()})();
+</script><script>
+/* ===== Audio section: player card + fully separate settings per section ===== */
+(()=>{
+S.mode='lyrics';S.aShow=true;S.aName=null;S.aArtist=null;S.aSz=.75;S.aTex=0;S.aCover=null;S.batch=false;S.exporting=false;
+try{document.fonts.load('700 40px "DM Sans"');document.fonts.load('500 40px "DM Sans"');document.fonts.load('600 40px "DM Sans"')}catch(e){}
+
+/* helpers */
+const rr=(c,x,y,w,h,r)=>{r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()};
+const cover=(c,img,x,y,w,h)=>{const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;if(!iw||!ih)return;const r=Math.max(w/iw,h/ih),dw=iw*r,dh=ih*r;c.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)};
+const fitT=(c,str,mw)=>{if(!str||mw<=0)return'';if(c.measureText(str).width<=mw)return str;let lo=0,hi=str.length;while(lo<hi){const m=(lo+hi+1)>>1;if(c.measureText(str.slice(0,m)+'…').width<=mw)lo=m;else hi=m-1}return lo?str.slice(0,lo)+'…':''};
+const cl=x=>(x||'').replace(/[\u0000-\u001f]/g,'').replace(/\s+/g,' ').trim();
+
+/* song name + artist for the card (typed text wins, otherwise read from the song file) */
+window.auInfo=()=>{let m={song:'',artist:''};try{m=meta()}catch(e){}return{song:cl(S.aName!=null?S.aName:m.song),artist:cl(S.aArtist!=null?S.aArtist:m.artist)}};
+window.auRefresh=()=>{if(S.mode==='audio')draw()};
+
+/* blurred copy of the cover, used as the default Audio background (works in every browser, no canvas filter) */
+const AB={img:null,L:null,mid:null,sm:null};
+function audBg(c,W,H){
+ const img=S.aCover;
+ if(!img){const g=c.createLinearGradient(0,0,W*.3,H);g.addColorStop(0,'#6a4a3c');g.addColorStop(1,'#2b2226');c.fillStyle=g;c.fillRect(0,0,W,H);return}
+ const L=W>=H;
+ if(AB.img!==img||AB.L!==L){
+  const sw=L?48:27,sh=L?27:48,sm=document.createElement('canvas');sm.width=sw;sm.height=sh;const sx=sm.getContext('2d');sx.imageSmoothingQuality='high';cover(sx,img,0,0,sw,sh);
+  const mid=document.createElement('canvas');mid.width=sw*6;mid.height=sh*6;const mx=mid.getContext('2d');mx.imageSmoothingEnabled=true;mx.imageSmoothingQuality='high';mx.drawImage(sm,0,0,mid.width,mid.height);
+  AB.img=img;AB.L=L;AB.mid=mid}
+ c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';c.drawImage(AB.mid,0,0,W,H);
+ c.fillStyle='rgba(24,16,12,.26)';c.fillRect(0,0,W,H)}
+window.audBg=audBg;
+
+/* grain texture */
+let NT=null;
+function noiseTile(){if(NT)return NT;const n=256,cv=document.createElement('canvas');cv.width=cv.height=n;const x=cv.getContext('2d'),d=x.createImageData(n,n);let a=12345;for(let i=0;i<n*n;i++){a=(a*1664525+1013904223)>>>0;const v=a>>>24,k=i*4;d.data[k]=d.data[k+1]=d.data[k+2]=v;d.data[k+3]=255}x.putImageData(d,0,0);return NT=cv}
+function grain(c,x,y,w,h,W){const al=(S.aTex==null?.5:S.aTex)*.34;if(al<=0)return;let p=null;try{p=c.createPattern(noiseTile(),'repeat')}catch(e){}if(!p)return;try{const sc=Math.max(1,W/1920);p.setTransform(new DOMMatrix().scale(sc,sc))}catch(e){}
+ c.save();c.globalAlpha=al;c.globalCompositeOperation='overlay';c.fillStyle=p;c.fillRect(x,y,w,h);c.restore()}
+
+window.grain=grain;
+
+/* the player box */
+function drawCard(c,W,H,t){
+ const dur=S.dur||0,t0=t||0,tt=Math.min(Math.max(0,t0),dur||0);
+ const s=Math.min(W*.74,H*.62)*(S.aSz==null?.75:S.aSz),x0=(W-s)/2,y0=(H-s)/2,tcv=($('tc')&&$('tc').value)||'#ffffff';
+ c.save();c.globalAlpha=1;c.filter='none';c.textBaseline='middle';
+ grain(c,0,0,W,H,W);
+ const u=Math.min(W,H)/1080,wig=S.wf>0&&S.wa>0,wx=wig?wn(t0*S.wf,1.7)*S.wa*u:0,wy=wig?wn(t0*S.wf,9.3)*S.wa*u:0;
+ c.translate(wx,wy);
+ /* thin bezel */
+ const shK=Math.min(1,Math.max(0,S.sh||0));c.shadowColor='rgba(0,0,0,'+(.38+.52*shK)+')';c.shadowBlur=s*(.08+.26*shK);c.shadowOffsetY=s*(.03+.06*shK);c.fillStyle='rgba(58,52,50,.55)';rr(c,x0,y0,s,s,s*.115);c.fill();
+ c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0;
+ /* Shadow slider: solid drop shadow outside the box (the bezel itself is see-through, so it can't cast a strong one) */
+ if(shK>0){const r=Math.min(s*.115,s/2);c.save();c.beginPath();c.rect(-W,-H,W*3,H*3);
+  c.moveTo(x0+r,y0);c.arcTo(x0+s,y0,x0+s,y0+s,r);c.arcTo(x0+s,y0+s,x0,y0+s,r);c.arcTo(x0,y0+s,x0,y0,r);c.arcTo(x0,y0,x0+s,y0,r);c.closePath();c.clip('evenodd');
+  c.shadowColor='rgba(0,0,0,'+(.35+.65*shK)+')';c.shadowBlur=s*(.05+.4*shK);c.shadowOffsetX=0;c.shadowOffsetY=s*(.02+.08*shK);c.fillStyle='#000';rr(c,x0,y0,s,s,s*.115);c.fill();c.restore()}
+ /* photo */
+ const pad=s*.0215,px=x0+pad,py=y0+pad,ps=s-pad*2;
+ const placeholder=(x,y,w,h,fs)=>{const g=c.createLinearGradient(x,y,x,y+h);g.addColorStop(0,'#a07058');g.addColorStop(1,'#3a2a2c');c.fillStyle=g;c.fillRect(x,y,w,h);c.fillStyle='rgba(255,255,255,.55)';c.font=fs+'px "DM Sans","Segoe UI Symbol",Arial,sans-serif';c.textAlign='center';c.fillText('\u266A',x+w/2,y+h/2);c.textAlign='left'};
+ c.save();rr(c,px,py,ps,ps,s*.095);c.clip();
+ if(S.aCover)cover(c,S.aCover,px,py,ps,ps);else placeholder(px,py,ps,ps,ps*.35);
+ grain(c,px,py,ps,ps,W);
+ let g=c.createLinearGradient(0,py,0,py+ps*.3);g.addColorStop(0,'rgba(0,0,0,.34)');g.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=g;c.fillRect(px,py,ps,ps*.3);
+ g=c.createLinearGradient(0,py+ps*.6,0,py+ps);g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,.6)');c.fillStyle=g;c.fillRect(px,py+ps*.6,ps,ps*.4);
+ c.restore();
+ /* time + progress, lower on the box (original thin bar, a little more see-through) */
+ const ix=x0+s*.12,iw=s*.76,by=y0+s*.92,bh=Math.max(2,s*.009),prog=dur?tt/dur:0;
+ c.fillStyle=rgba(tcv,.22);rr(c,ix,by,iw,bh,bh/2);c.fill();
+ if(prog>0){c.fillStyle=rgba(tcv,.72);rr(c,ix,by,Math.max(bh,iw*prog),bh,bh/2);c.fill()}
+ c.restore()}
+window.drawCard=drawCard;
+
+/* ===== separate settings for each section ===== */
+const SK=['aTex','font','sz','lsp','up','sh','wf','wa','lf','la','sp','style','ed','word','pon','pc','ps','pv','pb','px','pu','bgLock','bgZ','bgX','bgY','lgS','lgX','lgY','asp','res','fps'];
+const OB=['bg','bgFile','logo','logoFile','logoVid'];
+const FB0=$('fbn').textContent,FG0=$('fgn').textContent;
+const PROF={lyrics:null,audio:null};
+function capture(){const p={};SK.forEach(k=>p[k]=S[k]);OB.forEach(k=>p[k]=S[k]);p.tc=$('tc').value;p.fbOk=$('fb').classList.contains('ok');p.fbn=$('fbn').textContent;p.fgOk=$('fg').classList.contains('ok');p.fgn=$('fgn').textContent;return p}
+function audDefaults(){if(!FONTS.includes('DM Sans'))FONTS.push('DM Sans');
+ return{aTex:.5,font:'DM Sans',sz:1.13,lsp:.77,up:1,sh:0,wf:.3,wa:21,lf:.5,la:14,sp:1,style:0,ed:1,word:1,pon:true,pc:15,ps:.8,pv:.89,pb:.95,px:1.05,pu:1,bgLock:false,bgZ:1,bgX:0,bgY:0,lgS:18,lgX:50,lgY:86,asp:'16:9',res:2160,fps:60,
+  bg:null,bgFile:null,logo:null,logoFile:null,logoVid:false,tc:'#ffffff',fbOk:false,fbn:'Optional. The default is a blurred copy of the cover photo.',fgOk:false,fgn:FG0}}
+function apply(p){
+ S.batch=true;
+ if(S.logoVid&&S.logo&&S.logo.pause)try{S.logo.pause()}catch(e){}
+ SK.forEach(k=>S[k]=p[k]);OB.forEach(k=>S[k]=p[k]);S.lgBox=null;S.lgDrag=null;
+ $('tc').value=p.tc;
+ const SL={aTx:Math.round((p.aTex==null?.5:p.aTex)*100),sz:Math.round(p.sz*100),lsp:Math.round(p.lsp*100),sh:Math.round(p.sh*100),wf:p.wf,wa:p.wa,lf:p.lf,la:p.la,amp:Math.round(p.sp*100),pca:Math.round(p.pc),pcs:Math.round(p.ps*100),pcv:Math.round(p.pv*100),pcb:Math.round(p.pb*100),pcx:Math.round(p.px*100),pcu:Math.round(p.pu*100),lgs:p.lgS,lgx:p.lgX,lgy:p.lgY};
+ for(const id in SL){const el=$(id);el.value=SL[id];el.dispatchEvent(new Event('input',{bubbles:true}))}
+ [['sUp','up'],['sSt','style'],['sEd','ed'],['sMo','word'],['sAsp','asp'],['sRes','res'],['sFps','fps']].forEach(([id,k])=>{const b=[...$(id).querySelectorAll('button')].find(x=>x.dataset.v===String(p[k]));if(b)b.click()});
+ S.pon=p.pon;S.pc=p.pc;S.ps=p.ps;S.pv=p.pv;S.pb=p.pb;S.px=p.px;S.pu=p.pu;if(window.pcSync)pcSync();
+ for(const k in cache)delete cache[k];renderFonts();
+ $('fb').classList.toggle('ok',!!p.fbOk);$('fbn').textContent=p.fbOk?p.fbn:(S.mode==='audio'?'Optional. The default is a blurred copy of the cover photo.':FB0);
+ $('fg').classList.toggle('ok',!!p.fgOk);$('fgn').textContent=p.fgn;$('lgc').hidden=!S.logo;
+ bgUI();
+ S.batch=false;
+ if(S.playing&&S.logoVid&&S.logo&&S.logo.play)try{S.logo.play()}catch(e){}
+ draw()}
+function auUI(){
+ $('aSz').value=Math.round(S.aSz*100);$('aSzl').textContent=Math.round(S.aSz*100)+'%';$('aTx').value=Math.round(S.aTex*100);$('aTxl').textContent=Math.round(S.aTex*100)+'%';auRefresh()}
+function setMode(m){
+ if(m===S.mode||S.exporting)return;
+ PROF[S.mode]=capture();
+ if(!PROF[m])PROF[m]=audDefaults();
+ S.mode=m;
+ document.body.classList.toggle('audioMode',m==='audio');
+ [...$('sMode').querySelectorAll('button')].forEach(b=>b.classList.toggle('on',b.dataset.v===m));
+ if(m==='audio'&&document.body.classList.contains('tlo'))$('tlX').click();
+ apply(PROF[m]);auUI();ready();draw()}
+$('sMode').onclick=e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.v)};
+
+/* audio-only controls */
+['lsp','sSt','sMo','sEd','amp'].forEach(id=>{const r=$(id).closest('.row');if(r)r.classList.add('lyOnly')});
+document.querySelectorAll('.thBox').forEach(x=>x.classList.add('lyOnly'));
+$('aSz').oninput=e=>{S.aSz=e.target.value/100;$('aSzl').textContent=e.target.value+'%';draw()};
+$('aTx').oninput=e=>{S.aTex=e.target.value/100;$('aTxl').textContent=e.target.value+'%';draw()};
+$('ic').onchange=e=>{const f=e.target.files[0];if(!f)return;const i=new Image();i.onload=()=>{S.aCover=i;AB.img=null;$('fc').classList.add('ok');$('fcn').textContent=f.name;draw()};i.src=URL.createObjectURL(f)};
+
+$('fbX').onclick=e=>{e.preventDefault();e.stopPropagation();S.bg=null;S.bgFile=null;S.bgLock=false;S.bgZ=1;S.bgX=0;S.bgY=0;$('ib').value='';$('fb').classList.remove('ok');$('fbn').textContent=S.mode==='audio'?'Optional. The default is a blurred copy of the cover photo.':FB0;bgUI();draw()};
+$('fgX').onclick=e=>{e.preventDefault();e.stopPropagation();if(S.logoVid&&S.logo&&S.logo.pause)try{S.logo.pause()}catch(x){}S.logo=null;S.logoVid=false;S.logoFile=null;S.lgBox=null;S.lgDrag=null;$('ig').value='';$('fg').classList.remove('ok');$('fgn').textContent=FG0;$('lgc').hidden=true;draw()};
+$('fcX').onclick=e=>{e.preventDefault();e.stopPropagation();S.aCover=null;AB.img=null;$('ic').value='';$('fc').classList.remove('ok');$('fcn').textContent='Optional. Fills the player box.';draw()};
+auRefresh();
+})();
 </script></body></html>
