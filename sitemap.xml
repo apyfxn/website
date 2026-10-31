@@ -1,6 +1,15 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://pandeyanil.com.np/</loc>
+  </url>
+  <url>
+    <loc>https://pandeyanil.com.np/spin-wheel/</loc>
+  </url>
+  <url>
+    <loc>https://pandeyanil.com.np/lyrics-maker/</loc>
+  </url>
+  <url>
+    <loc>https://pandeyanil.com.np/quiz-maker/</loc>
   </url>
 </urlset>

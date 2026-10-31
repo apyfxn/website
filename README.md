@@ -7,7 +7,7 @@ Static website for GitHub Pages.
 - Main website: `/`
 - Spin the Wheel: `/spin-wheel/`
 - Lyrics Maker: `/lyrics-maker/`
-- Quiz Maker: `/Quiz-maker/`
+- Quiz Maker: `/quiz-maker/`
 
 Each project is served from its folder's `index.html`, so the public URLs do not end in `.html`.
 

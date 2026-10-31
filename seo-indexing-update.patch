@@ -1,0 +1,140 @@
+diff --git a/README.md b/README.md
+index 10cd851..af349ed 100644
+--- a/README.md
++++ b/README.md
+@@ -7,7 +7,7 @@ Static website for GitHub Pages.
+ - Main website: `/`
+ - Spin the Wheel: `/spin-wheel/`
+ - Lyrics Maker: `/lyrics-maker/`
+-- Quiz Maker: `/Quiz-maker/`
++- Quiz Maker: `/quiz-maker/`
+ 
+ Each project is served from its folder's `index.html`, so the public URLs do not end in `.html`.
+ 
+diff --git a/index.html b/index.html
+index 56d25b3..cbda08f 100644
+--- a/index.html
++++ b/index.html
+@@ -4,18 +4,19 @@
+ 
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+-<title>Anil Pandey</title>
+-<meta name="description" content="Video editing, motion graphics and typography animation for music, brands and creators — plus Quick_AE, Quick_PR and Quick_PS, dockable panels built for everyday editing. Kathmandu, worldwide.">
++<title>Anil Pandey — Software Developer &amp; Video Editor</title>
++<meta name="description" content="Anil Pandey is a software developer and video editor in Nepal, working on creative tools, motion graphics and typography animation.">
+ <meta name="theme-color" content="#000000">
+ <meta name="author" content="Anil Pandey">
++<link rel="canonical" href="https://pandeyanil.com.np/">
+ <meta property="og:type" content="website">
+ <meta property="og:site_name" content="APY">
+-<meta property="og:title" content="Anil Pandey — Video Editor & Motion Designer">
+-<meta property="og:description" content="Video editing, motion graphics and typography animation for music, brands and creators. Cinematic pacing, clean grade, sound that lands.">
++<meta property="og:title" content="Anil Pandey — Software Developer &amp; Video Editor">
++<meta property="og:description" content="Anil Pandey is a software developer and video editor in Nepal, working on creative tools, motion graphics and typography animation.">
+ <meta property="og:url" content="https://pandeyanil.com.np/">
+ <meta name="twitter:card" content="summary_large_image">
+-<meta name="twitter:title" content="Anil Pandey — Video Editor & Motion Designer">
+-<meta name="twitter:description" content="Video editing, motion graphics and typography animation for music, brands and creators.">
++<meta name="twitter:title" content="Anil Pandey — Software Developer &amp; Video Editor">
++<meta name="twitter:description" content="Anil Pandey is a software developer and video editor in Nepal, working on creative tools, motion graphics and typography animation.">
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+diff --git a/lyrics-maker/index.html b/lyrics-maker/index.html
+index 7ed4e27..b699c83 100644
+--- a/lyrics-maker/index.html
++++ b/lyrics-maker/index.html
+@@ -1,7 +1,18 @@
+ <!DOCTYPE html>
+ <html lang="en"><head><meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+-<title>Lyric Video Maker</title>
++<title>Lyric Video Maker — Anil Pandey</title>
++<meta name="description" content="Create lyric videos with timed lyrics, audio, custom fonts, animation and artwork in this browser based studio by Anil Pandey.">
++<meta name="author" content="Anil Pandey">
++<link rel="canonical" href="https://pandeyanil.com.np/lyrics-maker/">
++<meta property="og:type" content="website">
++<meta property="og:site_name" content="Anil Pandey">
++<meta property="og:title" content="Lyric Video Maker — Anil Pandey">
++<meta property="og:description" content="Create lyric videos with timed lyrics, audio, custom fonts, animation and artwork in this browser based studio by Anil Pandey.">
++<meta property="og:url" content="https://pandeyanil.com.np/lyrics-maker/">
++<meta name="twitter:card" content="summary">
++<meta name="twitter:title" content="Lyric Video Maker — Anil Pandey">
++<meta name="twitter:description" content="Create lyric videos with timed lyrics, audio, custom fonts, animation and artwork in this browser based studio.">
+ <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Poppins:wght@700&family=Rubik:wght@700;800&display=swap" rel="stylesheet">
+ <style>
+ :root{color-scheme:light;--bg:#f6f7fb;--card:#ffffff;--tx:#0f172a;--mu:#64748b;--ac:#4f46e5;--acx:#ffffff;--at:#4338ca;--ln:#e5e8f0;--seg:#eef0f6;--stage:#0a0f1f;--pg:linear-gradient(180deg,#6366f1,#4f46e5);--sh:0 1px 2px rgba(15,23,42,.05),0 4px 14px rgba(15,23,42,.05);--hd:"DM Sans",system-ui,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+diff --git a/quiz-maker/index.html b/quiz-maker/index.html
+index 8202aaa..006ebed 100644
+--- a/quiz-maker/index.html
++++ b/quiz-maker/index.html
+@@ -1,6 +1,17 @@
+ <!doctype html><html lang="en"><head><meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+-<title>QuizReel Studio</title>
++<title>QuizReel Studio — Quiz Video Maker by Anil Pandey</title>
++<meta name="description" content="Make quiz videos with timed questions, voice-over, photos and music in QuizReel Studio, a browser based tool by Anil Pandey.">
++<meta name="author" content="Anil Pandey">
++<link rel="canonical" href="https://pandeyanil.com.np/quiz-maker/">
++<meta property="og:type" content="website">
++<meta property="og:site_name" content="Anil Pandey">
++<meta property="og:title" content="QuizReel Studio — Quiz Video Maker by Anil Pandey">
++<meta property="og:description" content="Make quiz videos with timed questions, voice-over, photos and music in QuizReel Studio, a browser based tool by Anil Pandey.">
++<meta property="og:url" content="https://pandeyanil.com.np/quiz-maker/">
++<meta name="twitter:card" content="summary">
++<meta name="twitter:title" content="QuizReel Studio — Quiz Video Maker by Anil Pandey">
++<meta name="twitter:description" content="Make quiz videos with timed questions, voice-over, photos and music in this browser based tool.">
+ <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Fredoka:wght@700;800&family=Rubik:wght@700;800&display=swap" rel="stylesheet">
+ <style>
+ :root{color-scheme:light;--bg:#f6f7fb;--card:#ffffff;--tx:#0f172a;--mu:#64748b;--ac:#4f46e5;--acx:#ffffff;--at:#4338ca;--ln:#e5e8f0;--seg:#eef0f6;--stage:#0a0f1f;--pg:linear-gradient(180deg,#6366f1,#4f46e5);--sh:0 1px 2px rgba(15,23,42,.05),0 4px 14px rgba(15,23,42,.05);--hd:"DM Sans",system-ui,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+diff --git a/robots.txt b/robots.txt
+new file mode 100644
+index 0000000..c72266d
+--- /dev/null
++++ b/robots.txt
+@@ -0,0 +1,4 @@
++User-agent: *
++Allow: /
++
++Sitemap: https://pandeyanil.com.np/sitemap.xml
+diff --git a/sitemap.xml b/sitemap.xml
+index c83f72b..940f961 100644
+--- a/sitemap.xml
++++ b/sitemap.xml
+@@ -1,6 +1,15 @@
+-
++<?xml version="1.0" encoding="UTF-8"?>
+ <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+   <url>
+     <loc>https://pandeyanil.com.np/</loc>
+   </url>
++  <url>
++    <loc>https://pandeyanil.com.np/spin-wheel/</loc>
++  </url>
++  <url>
++    <loc>https://pandeyanil.com.np/lyrics-maker/</loc>
++  </url>
++  <url>
++    <loc>https://pandeyanil.com.np/quiz-maker/</loc>
++  </url>
+ </urlset>
+diff --git a/spin-wheel/index.html b/spin-wheel/index.html
+index bcb739e..e2c0f8e 100644
+--- a/spin-wheel/index.html
++++ b/spin-wheel/index.html
+@@ -6,11 +6,14 @@
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <meta name="description" content="Add your entries, spin the wheel, and pick a giveaway winner live.">
+ <meta name="theme-color" content="#1a0e2e">
++<meta name="author" content="Anil Pandey">
++<link rel="canonical" href="https://pandeyanil.com.np/spin-wheel/">
+ <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%A1%3C/text%3E%3C/svg%3E">
+ 
+ <meta property="og:title" content="Spin the Wheel — Giveaway Picker">
+ <meta property="og:description" content="Add your entries, spin the wheel, and pick a giveaway winner live.">
+ <meta property="og:type" content="website">
++<meta property="og:url" content="https://pandeyanil.com.np/spin-wheel/">
+ <style>
+   :root{
+     --ig-purple:#5B2A86;
