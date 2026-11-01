@@ -573,7 +573,7 @@ aside .thBtnRow #expTe{flex:none;min-height:44px;padding:0 16px!important;font-s
 .left>.card .thSeg #expT{flex:1 1 auto;min-height:44px;font-size:13px!important;line-height:1.25;padding:8px 12px!important}
 .left>.card .thSeg #expTe{flex:none;min-height:44px;padding:0 16px!important;font-size:13px!important}
 /* colour + light/dark picker moved to the top of the settings panel */
-.left>.card .appr{position:static!important;order:-1;align-self:flex-start;margin:0 0 22px!important}
+.left>.card .appr{position:static!important;order:99;align-self:flex-start;margin:18px 0 0!important}.left>.card .infoBtn{order:98}
 /* gentle motion that answers actions only */
 .file,textarea,.fc,.seg button,.chips button,button{transition:background .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease,transform .18s ease!important}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -596,12 +596,25 @@ body:not(.audioMode) .auOnly{display:none!important}
 .auIn{display:block;width:100%;margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--a-line,#d4d4cb);background:var(--a-surf,#fff);color:var(--a-tx,#222);font:inherit;font-size:13.5px}
 .auIn:focus{outline:0;border-color:var(--a-blue,#0a84ff);box-shadow:0 0 0 4px var(--a-blue-soft,rgba(10,132,255,.2))}
 .auIn::placeholder{color:var(--a-mu,#888);opacity:.75}
+
+/* ===== Find lyrics button (top of settings) + Lyrics Toolkit overlay ===== */
+.left>.card .findLy{order:-2;display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:46px;margin:0 0 22px;padding:10px 16px;border:0;border-radius:12px;cursor:pointer;font:700 13.5px/1.2 var(--a-font);letter-spacing:-.01em;background:var(--a-grad)!important;color:var(--a-on)!important;box-shadow:0 8px 24px rgba(var(--acc),.34),inset 0 1px 0 rgba(255,255,255,.34)!important}
+.left>.card .findLy:hover{box-shadow:0 12px 32px rgba(var(--acc),.5),inset 0 1px 0 rgba(255,255,255,.4)!important;transform:translateY(-1px)}
+.left>.card .findLy:active{transform:none}
+.left>.card .findLy svg{width:17px;height:17px;flex:none}
+#tkOv{position:fixed;inset:0;z-index:200;background:var(--a-bg);opacity:0;visibility:hidden;transform:translateY(10px) scale(.992);transition:opacity .2s ease,transform .2s ease,visibility 0s .2s}
+#tkOv.open{opacity:1;visibility:visible;transform:none;transition:opacity .2s ease,transform .2s ease}
+#tkOv iframe{display:block;width:100%;height:100%;border:0;background:var(--a-bg)}
+body.tkOpen{overflow:hidden}
+@keyframes tkFlash{0%,100%{outline-color:transparent}25%,60%{outline-color:rgb(var(--acc))}}
+#lt.tkFlash{outline:2px solid transparent;outline-offset:3px;animation:tkFlash 1.4s ease}
+@media (prefers-reduced-motion:reduce){#tkOv{transition:none}#lt.tkFlash{animation:none;outline-color:rgb(var(--acc))}}
 </style></head><body>
 <main class="wrap"><div class="grid">
 <section class="left">
  <div class="stage"><canvas id="amb" width="96" height="54" aria-hidden="true"></canvas><canvas id="pv" width="1920" height="1080"></canvas></div>
  <div class="tr"><button class="circ" id="play" aria-label="Play or pause">▶</button><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><span class="t" id="tm">0:00</span></div>
- <div class="card"><div class="row shapeControl"><span>Shape</span><div class="seg" id="sAsp"><button data-v="16:9" class="on">16:9</button><button data-v="9:16">9:16</button></div></div>
+ <div class="card"><button type="button" class="findLy" id="findLy" aria-haspopup="dialog" aria-controls="tkOv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Find lyrics</button><div class="row shapeControl"><span>Shape</span><div class="seg" id="sAsp"><button data-v="16:9" class="on">16:9</button><button data-v="9:16">9:16</button></div></div>
   <div class="row thBox"><span>Timeline and thumbnail</span><div class="thSeg"><button class="p tlTog">Edit timeline</button><div class="thBtnRow"><button class="s" id="expT" type="button">Export thumbnail (JPG)</button><button class="s" id="expTe" type="button" title="Edit the thumbnail" aria-label="Edit the thumbnail">✎ Edit</button></div></div></div>
   <div class="row"><span>Resolution</span><div class="seg" id="sRes"><button data-v="2160" class="on">4K UHD</button></div></div>
   <div class="row"><span>Frame rate</span><div class="seg" id="sFps"><button data-v="60" class="on">60 fps</button><button data-v="120">120 fps</button></div></div>
@@ -744,7 +757,10 @@ const S={bgLock:false,bgZ:1,bgX:0,bgY:0,buf:null,dur:0,lines:[],bg:null,logo:nul
 function seg(id,key,num){const el=$(id);el.onclick=e=>{const b=e.target.closest('button');if(!b)return;el.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=num?+b.dataset.v:b.dataset.v;if(key=='asp'||key=='up')sizePv();draw()}}
 seg('sRes','res',1);seg('sFps','fps',1);seg('sAsp','asp');seg('sUp','up',1);
 // lyrics
-function parse(t){const a=[];for(const l of t.split(/\r?\n/)){const m=l.match(/^\s*\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);if(m)a.push({s:+m[1]*60+ +m[2],t:m[3].trim()});else{const x=l.trim();if(x&&!/^\[[a-zA-Z#]+:.*\]$/.test(x)){const z=a[a.length-1];if(z&&z.t)z.t+='\n'+x}}}
+/* section labels like [Chorus] [Verse 1] [Outro: names] (Bridge) are not lyrics: never show them */
+const lyIsTag=x=>{x=String(x).trim();return /^\[[^\]\d\s][^\]]*\]$/.test(x)||/^\((?:intro|outro|verse|chorus|pre[\s-]?chorus|post[\s-]?chorus|bridge|hook|refrain|interlude|instrumental|solo|guitar solo|drop|spoken|ad[\s-]?libs?|skit|repeat|x\d)[^)]*\)$/i.test(x)||/^(?:intro|outro|verse|chorus|pre[\s-]?chorus|post[\s-]?chorus|bridge|hook|refrain|interlude|instrumental)\s*\d*\s*:[^\n]{0,60}$/i.test(x)};
+const lyNoTag=x=>{let p;x=String(x);do{p=x;x=x.replace(/^\s*\[[^\]\d\s][^\]]*\]\s*/,'')}while(x!==p);return x.trim()};
+function parse(t){const a=[];for(const l of t.split(/\r?\n/)){const m=l.match(/^\s*\[(\d+):(\d+(?:\.\d+)?)\]\s*(.*)$/);if(m){const tx=m[3].trim();a.push({s:+m[1]*60+ +m[2],t:lyIsTag(tx)?'':lyNoTag(tx)})}else{const x=l.trim();if(x&&!lyIsTag(x)){const z=a[a.length-1],y=lyNoTag(x);if(z&&z.t&&y)z.t+='\n'+y}}}
   a.sort((p,q)=>p.s-q.s);const o=[];a.forEach((x,i)=>{if(!x.t)return;const n=a[i+1];let r=null;for(let j=i+1;j<a.length;j++)if(a[j].t){r=a[j];break}
    if(n&&!n.t&&n.s>x.s+.05){x.x=r?Math.min(n.s,r.s):n.s;x.e=x.x}else x.e=r?Math.min(r.s,x.s+7):x.s+4.5;o.push(x)});return o}
 function lyr(){S.lines=parse($('lt').value);updMeta();for(const k in cache)delete cache[k];ready();draw();window.TL&&TL.sync()}
@@ -1355,4 +1371,964 @@ $('fgX').onclick=e=>{e.preventDefault();e.stopPropagation();if(S.logoVid&&S.logo
 $('fcX').onclick=e=>{e.preventDefault();e.stopPropagation();S.aCover=null;AB.img=null;$('ic').value='';$('fc').classList.remove('ok');$('fcn').textContent='Optional. Fills the player box.';draw()};
 auRefresh();
 })();
-</script></body></html>
+</script><div id="tkOv" role="dialog" aria-modal="true" aria-label="Lyrics Toolkit" aria-hidden="true"><iframe id="tkFr" title="Lyrics Toolkit"></iframe></div>
+<script type="text/plain" id="tkSrc"><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Lyrics Toolkit</title>
+<script>
+(()=>{const R=document.documentElement,q=new URLSearchParams(location.search);let acc=q.get('acc')||'rose',ui=q.get('ui')||'dark';
+ const ok={acc:['rose','violet','azure','emerald','amber'],ui:['dark','light']};
+ const set=(a,u)=>{if(ok.acc.includes(a))acc=a;if(ok.ui.includes(u))ui=u;R.dataset.acc=acc;R.dataset.ui=ui};set(acc,ui);
+ if(window.parent!==window)R.classList.add('embedded');
+ let last='',dirty=false;
+ const fill=d=>{const T=document.getElementById('t'),A=document.getElementById('a');if(!T||!A||(!d.song&&!d.artist))return;const k=d.song+'|'+d.artist;if(k===last&&dirty)return;T.value=d.song||'';A.value=d.artist||'';last=k;dirty=false};
+ addEventListener('message',e=>{if(e.source!==parent||!e.data)return;if(e.data.tk==='theme')set(e.data.acc,e.data.ui);else if(e.data.tk==='fill')fill(e.data)});
+ addEventListener('DOMContentLoaded',()=>['t','a'].forEach(id=>document.getElementById(id).addEventListener('input',e=>{if(e.isTrusted)dirty=true})));
+ addEventListener('DOMContentLoaded',()=>{const x=document.getElementById('xBtn'),c=()=>parent.postMessage({tk:'close'},'*');
+  if(x)x.onclick=c;const bb=document.getElementById('backBtn');if(bb)bb.onclick=c;addEventListener('keydown',e=>{if(e.key==='Escape'&&window.parent!==window)c()})});
+})();
+<\/script>
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#eef0f4;--card:#fff;--sub:#f5f6f9;--tx:#121a2b;--mu:#5d677a;--bd:#dde1ea;
+  --ac:#2547e8;--acs:#e8ecff;--onac:#fff;
+  --ok:#12805c;--er:#c8352b;--wa:#b76e00;
+  --hh:60px;--r:14px;--rs:10px;
+  --sh:0 1px 2px rgba(18,26,43,.06),0 10px 28px rgba(18,26,43,.10);
+  --mono:ui-monospace,"JetBrains Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --disp:"Bricolage Grotesque","Instrument Sans",system-ui,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0a0e18;--card:#111726;--sub:#0b101c;--tx:#e8ecf6;--mu:#8f9ab0;--bd:#222b40;
+  --ac:#7d95ff;--acs:#1a2342;--onac:#0a0e18;
+  --ok:#4cd6a0;--er:#ff7d72;--wa:#f0b24a;
+  --sh:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.45)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--hh) + 90px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,b{font-family:var(--disp)}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* header */
+header{position:sticky;top:0;z-index:30;height:var(--hh);padding:0 16px;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd)}
+.w{max-width:1000px;margin:auto}.fw{max-width:780px;margin:auto}
+.hd{height:100%;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{flex:none;width:36px;height:36px;border-radius:10px;background:var(--tx);color:var(--bg);display:grid;place-items:center}
+.logo svg{width:20px;height:20px}.logo .hi{fill:var(--ac)}
+.brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.brand p{margin:2px 0 0;color:var(--mu);font-size:12px;line-height:1.2;white-space:nowrap}
+.tabs{display:flex;gap:2px;padding:3px;background:var(--card);border:1px solid var(--bd);border-radius:12px;margin:0}
+.tabs button{background:transparent;color:var(--mu);padding:7px 14px;border-radius:9px;font-weight:600;font-size:14px;white-space:nowrap}
+.tabs button:hover{color:var(--tx);filter:none}
+.tabs button.on{background:var(--tx);color:var(--bg)}
+
+/* controls */
+button{font:inherit;font-weight:600;padding:11px 20px;border:0;border-radius:var(--rs);background:var(--ac);color:var(--onac);cursor:pointer;transition:background .15s,border-color .15s,transform .1s,filter .15s}
+button:hover{filter:brightness(1.1)}button:active{transform:scale(.98)}
+button.s{background:var(--card);color:var(--tx);border:1px solid var(--bd);padding:6px 12px;font-size:13px;font-weight:500}
+button.s:hover{border-color:var(--ac);color:var(--ac);filter:none}
+input[type=text],select,input[type=number]{font:inherit;color:var(--tx);background:var(--sub);border:1px solid var(--bd);border-radius:var(--rs);padding:11px 13px;transition:border-color .15s,box-shadow .15s}
+input[type=text],select{flex:1;min-width:140px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px color-mix(in srgb,var(--ac) 22%,transparent)}
+::placeholder{color:var(--mu);opacity:.75}
+kbd{font:12px var(--mono);border:1px solid var(--bd);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--card)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* search */
+.box{position:sticky;top:calc(var(--hh) + 10px);z-index:5;margin:18px 0 14px;padding:12px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh)}
+.box input[type=text]{font-size:16px;padding:13px 14px}
+#go{padding:13px 26px}
+.opt{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--mu)}
+.opt label{display:flex;gap:7px;align-items:center;cursor:pointer;padding:5px 12px;border:1px solid var(--bd);border-radius:99px;background:var(--sub);transition:border-color .15s,background .15s}
+.opt label:hover{border-color:var(--ac)}
+.opt label:has(input:checked){border-color:var(--ac);color:var(--tx);background:var(--acs)}
+.opt input{accent-color:var(--ac);margin:0}
+#bar{height:3px;background:var(--bd);border-radius:9px;margin-top:10px;overflow:hidden;opacity:0;transition:opacity .3s}
+#bar i{display:block;height:100%;width:0;background:var(--ac);transition:width .3s}
+
+/* summary chips: order is synced, plain, no result, failed, searching */
+#sum{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px;min-height:28px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;padding:3px 11px;border-radius:99px;background:var(--card);border:1px solid var(--bd);color:var(--mu)}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--bd)}
+.chip:nth-child(1)::before{background:var(--ok)}.chip:nth-child(2)::before{background:var(--wa)}
+.chip:nth-child(4)::before{background:var(--er)}.chip:nth-child(5)::before{background:var(--ac)}
+
+/* results */
+#out{display:flex;flex-direction:column;gap:10px}.hide .card.x{display:none}
+.card{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--bd);border-radius:var(--r);padding:12px 14px;transition:border-color .2s}
+.card.ok{border-left-color:var(--ok)}.card.pl{border-left-color:var(--wa)}.card.er{border-left-color:var(--er)}
+.card.x:not(.er){opacity:.7}
+.card.ld{animation:p 1.2s infinite}@keyframes p{50%{opacity:.55}}
+.h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.n{font-family:var(--disp);font-weight:650;font-size:16px;letter-spacing:-.01em}
+.n small{font:400 11px var(--mono);color:var(--mu);margin-left:8px;padding:1px 7px;border:1px solid var(--bd);border-radius:6px}
+.b{font-size:12px;padding:2px 10px;border-radius:99px;border:1px solid var(--bd);color:var(--mu)}
+.ok .b{color:var(--ok);border-color:var(--ok);background:color-mix(in srgb,var(--ok) 10%,transparent)}
+.pl .b{color:var(--wa);border-color:var(--wa);background:color-mix(in srgb,var(--wa) 10%,transparent)}
+.er .b{color:var(--er);border-color:var(--er);background:color-mix(in srgb,var(--er) 10%,transparent)}
+.m{color:var(--mu);font-size:13px;margin-top:4px;word-break:break-word}.first{font-style:italic;color:var(--tx);opacity:.85}
+.act{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+pre{white-space:pre-wrap;max-height:320px;overflow:auto;margin:12px 0 0;font:13px/1.65 var(--mono);background:var(--sub);border:1px solid var(--bd);padding:12px;border-radius:var(--rs)}
+
+/* empty state: a tiny lyric sheet that "plays" */
+.empty{text-align:center;color:var(--mu);padding:28px 8px 36px}
+.empty b{display:block;font-size:20px;font-weight:700;letter-spacing:-.02em;color:var(--tx);margin:18px 0 6px}
+.empty p{margin:0 auto 16px;max-width:430px;font-size:13.5px}
+.sheet{width:min(340px,100%);margin:0 auto;text-align:left;padding:14px 18px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh)}
+.sheet p{display:flex;gap:12px;margin:0;padding:5px 0;font-size:14.5px;color:var(--mu);animation:lit 8s infinite}
+.sheet p i{font:normal 11.5px/1.9 var(--mono);color:var(--mu);opacity:.8;flex:none}
+.sheet p:nth-child(2){animation-delay:2s}.sheet p:nth-child(3){animation-delay:4s}.sheet p:nth-child(4){animation-delay:6s}
+@keyframes lit{0%,22%{color:var(--tx);font-weight:600}26%,100%{color:var(--mu);font-weight:400}}
+.ex{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+.hint{color:var(--mu);font-size:12px;margin-top:6px}
+
+details{margin-top:14px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px 14px;font-size:13px}
+summary{cursor:pointer;color:var(--mu);font-weight:500}summary:hover{color:var(--tx)}
+details[open] summary{color:var(--tx);margin-bottom:2px}
+details .row{margin-top:10px}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
+
+/* convert tab */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.step{position:relative;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.sh,.sh2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.sh b{font-size:16px;font-weight:650;letter-spacing:-.01em}
+.sh2{justify-content:space-between;font-size:13px;color:var(--mu);font-weight:500}
+.sn{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ac);color:var(--onac);display:grid;place-items:center;font:700 13px var(--disp)}
+.sp{flex:1}.meta{font:12px var(--mono);color:var(--mu);font-weight:400}
+.sh b small{font-weight:400}
+textarea{display:block;width:100%;height:300px;resize:vertical;background:var(--sub);color:var(--tx);border:1px solid var(--bd);border-radius:var(--rs);padding:12px;font:13px/1.6 var(--mono);white-space:pre;tab-size:2;transition:border-color .15s,box-shadow .15s}
+textarea[readonly]{background:color-mix(in srgb,var(--sub) 60%,var(--card))}
+.optd{margin:0 0 10px;background:var(--sub);border-radius:var(--rs)}
+.optd .opts{margin:10px 0 2px}
+.opts{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;font-size:13px;color:var(--mu)}
+.opts label{display:flex;align-items:center;gap:6px}
+.opts input[type=checkbox]{accent-color:var(--ac)}
+.opts select,.opts input[type=number]{flex:none;min-width:0;width:auto;padding:5px 8px;background:var(--card)}
+.opts input[type=number]{width:90px}
+#cst{margin:8px 0 0;font-size:13px;color:var(--mu);min-height:18px}
+.step.dz::after{content:"Drop file to load";position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--ac) 14%,var(--card));border:2px dashed var(--ac);border-radius:var(--r);font-weight:600;color:var(--ac);z-index:2}
+
+.grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#rlang{flex:none;min-width:0;width:auto;padding:6px 8px;font-size:13px;font-weight:500}
+
+/* light UX pass */
+.sh2{min-height:36px}
+.sh2>span:first-child{font-weight:600;color:var(--tx);font-size:13.5px}
+#ronline{background:var(--ac);color:var(--onac);border-color:var(--ac);font-weight:600}
+#ronline:hover{color:var(--onac);border-color:var(--ac);filter:brightness(1.1)}
+button:disabled{opacity:.55;cursor:progress;filter:none;transform:none}
+#rst{margin:0 0 12px;padding:9px 12px;border-radius:var(--rs);background:var(--acs);color:var(--tx);font-size:13px;line-height:1.45}
+#rst:empty{display:none}
+.step textarea{height:280px}
+.sheet p{cursor:default}
+@media(max-width:560px){.grp{width:100%}.grp select{flex:1}.sh2{align-items:stretch}}
+@media(max-width:820px){.cols{grid-template-columns:1fr}}
+@media(max-width:560px){.brand p{display:none}.tabs button{padding:7px 10px;font-size:13px}.brand h1{font-size:17px}}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .sheet p:first-child{color:var(--tx);font-weight:600}}
+
+/* ===== Skin: same look as the lyrics maker (index.html): Manrope, hairlines, glass tiles, gradient accent ===== */
+:root{--acc:255,61,119;--a-blue:#ff3d77;--a-blue2:#ff6b96;--a-on:#fff;--a-grad:linear-gradient(135deg,#ff82a3 0%,#ff3d77 52%,#d4246c 100%);--a-blue-soft:rgba(var(--acc),.16);
+ --a-font:"Manrope","SF Pro Text",-apple-system,BlinkMacSystemFont,"Segoe UI","Inter","Helvetica Neue",Arial,sans-serif;
+ --a-bg:#07080b;--a-surf:#13151a;--a-bar:rgba(13,14,18,.84);--a-tx:#f3f4f8;--a-mu:#8c92a0;--a-line:rgba(255,255,255,.085);--a-fill:rgba(255,255,255,.075);--a-fill2:rgba(255,255,255,.04);--a-segon:#3b3e49;--a-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
+:root[data-ui=light]{--a-bg:#f2f2f5;--a-surf:#ffffff;--a-bar:rgba(255,255,255,.82);--a-tx:#16171c;--a-mu:#6a6f7e;--a-line:rgba(22,24,34,.1);--a-fill:rgba(60,64,96,.085);--a-fill2:rgba(60,64,96,.045);--a-segon:#ffffff;--a-shadow:0 1px 2px rgba(0,0,0,.05),0 10px 30px rgba(20,24,40,.08)}
+:root[data-acc=violet]{--acc:139,108,255;--a-blue:#8b6cff;--a-blue2:#a78bff;--a-grad:linear-gradient(135deg,#b9a4ff 0%,#8b6cff 52%,#6243ec 100%)}
+:root[data-acc=azure]{--acc:47,155,255;--a-blue:#2f9bff;--a-blue2:#5db4ff;--a-grad:linear-gradient(135deg,#68bcff 0%,#2f9bff 52%,#1b66e0 100%)}
+:root[data-acc=emerald]{--acc:34,197,139;--a-blue:#22c58b;--a-blue2:#47dba6;--a-grad:linear-gradient(135deg,#59e3ae 0%,#22c58b 52%,#12936a 100%);--a-on:#04170f}
+:root[data-acc=amber]{--acc:245,181,68;--a-blue:#f5b544;--a-blue2:#ffc86a;--a-grad:linear-gradient(135deg,#ffd57e 0%,#f5b544 52%,#dc8a18 100%);--a-on:#1b1204}
+:root,:root[data-ui=light]{--bg:var(--a-bg);--card:var(--a-surf);--sub:var(--a-fill2);--tx:var(--a-tx);--mu:var(--a-mu);--bd:var(--a-line);--ac:var(--a-blue);--acs:var(--a-blue-soft);--onac:var(--a-on);
+ --ok:#30d158;--er:#ff453a;--wa:#f5b544;--r:14px;--rs:11px;--sh:var(--a-shadow);--disp:var(--a-font)}
+:root{color-scheme:dark}:root[data-ui=light]{color-scheme:light}
+body{font-family:var(--a-font);letter-spacing:-.014em;font-feature-settings:"ss01","cv11"}
+button,input,select,textarea{font-family:var(--a-font)}textarea,pre,kbd,.meta,.sheet p i,.n small{font-family:var(--mono)}
+h1,h2,b{font-weight:700;letter-spacing:-.022em}
+header{background:var(--a-bar);-webkit-backdrop-filter:saturate(180%) blur(30px);backdrop-filter:saturate(180%) blur(30px);border-bottom:1px solid var(--a-line)}
+.logo{background:var(--a-fill);color:var(--a-blue);box-shadow:inset 0 0 0 .5px var(--a-line);border-radius:10px}.logo .hi{fill:var(--a-tx)}
+.brand p{color:var(--a-mu)}
+/* tabs = the segmented control */
+.tabs{background:var(--a-fill);border:0;box-shadow:inset 0 0 0 .5px var(--a-line);border-radius:11px;padding:3px}
+.tabs button{background:transparent;color:var(--a-mu);box-shadow:none;border-radius:8px;font-weight:600}
+.tabs button:hover{color:var(--a-tx)}
+.tabs button.on{background:var(--a-segon);color:var(--a-tx);box-shadow:0 1px 3px rgba(0,0,0,.35),inset 0 0 0 .5px var(--a-line)}
+/* buttons */
+button{background:var(--a-grad);color:var(--a-on);box-shadow:0 6px 20px rgba(var(--acc),.3),inset 0 1px 0 rgba(255,255,255,.32)}
+button:hover{filter:none;box-shadow:0 10px 28px rgba(var(--acc),.45),inset 0 1px 0 rgba(255,255,255,.4)}
+button.s{background:var(--a-fill);color:var(--a-tx);border:0;box-shadow:inset 0 0 0 .5px var(--a-line)}
+button.s:hover{background:var(--a-fill);color:var(--a-blue);box-shadow:inset 0 0 0 .5px rgba(var(--acc),.5)}
+.tabs button,.tabs button:hover{box-shadow:none}.tabs button.on,.tabs button.on:hover{box-shadow:0 1px 3px rgba(0,0,0,.35),inset 0 0 0 .5px var(--a-line)}
+#ronline{background:var(--a-grad);color:var(--a-on);border:0;box-shadow:0 6px 20px rgba(var(--acc),.3),inset 0 1px 0 rgba(255,255,255,.32)}
+#ronline:hover{color:var(--a-on);filter:none;box-shadow:0 10px 28px rgba(var(--acc),.45),inset 0 1px 0 rgba(255,255,255,.4)}
+button:disabled{background:var(--a-fill);color:var(--a-mu);box-shadow:none}
+/* fields */
+input[type=text],select,input[type=number],textarea{background:var(--a-surf);border:0;box-shadow:inset 0 0 0 .5px var(--a-line),0 1px 2px rgba(0,0,0,.18)}
+textarea[readonly]{background:var(--a-fill2)}
+input:focus,select:focus,textarea:focus{border:0;box-shadow:inset 0 0 0 1px var(--a-blue),0 0 0 4px var(--a-blue-soft)}
+::placeholder{color:var(--a-mu)}
+.opts select,.opts input[type=number]{background:var(--a-fill)}
+/* surfaces */
+.box,.card,.step,details,.sheet{background:var(--a-surf);border:0;box-shadow:inset 0 0 0 .5px var(--a-line),var(--a-shadow)}
+.optd{background:var(--a-fill2);box-shadow:inset 0 0 0 .5px var(--a-line)}
+:root:not([data-ui=light]) .box,:root:not([data-ui=light]) .card,:root:not([data-ui=light]) .step,:root:not([data-ui=light]) .sheet{background-image:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,0))}
+.card.ok{box-shadow:inset 3px 0 0 var(--ok),inset 0 0 0 .5px var(--a-line),var(--a-shadow)}
+.card.pl{box-shadow:inset 3px 0 0 var(--wa),inset 0 0 0 .5px var(--a-line),var(--a-shadow)}
+.card.er{box-shadow:inset 3px 0 0 var(--er),inset 0 0 0 .5px var(--a-line),var(--a-shadow)}
+.card.x:not(.er){opacity:.65}
+.n small,.b,.chip{border-color:transparent;background:var(--a-fill);box-shadow:inset 0 0 0 .5px var(--a-line)}
+.ok .b{background:rgba(48,209,88,.14);box-shadow:inset 0 0 0 .5px rgba(48,209,88,.45)}
+.pl .b{background:rgba(245,181,68,.14);box-shadow:inset 0 0 0 .5px rgba(245,181,68,.45)}
+.er .b{background:rgba(255,69,58,.14);box-shadow:inset 0 0 0 .5px rgba(255,69,58,.45)}
+pre{background:var(--a-fill2);border:0;box-shadow:inset 0 0 0 .5px var(--a-line)}
+/* option pills = the chips */
+.opt label{background:var(--a-fill);border:0;box-shadow:inset 0 0 0 .5px var(--a-line);color:var(--a-tx)}
+.opt label:hover{box-shadow:inset 0 0 0 .5px rgba(var(--acc),.55)}
+.opt label:has(input:checked){background:var(--a-grad);color:var(--a-on);box-shadow:0 4px 14px rgba(var(--acc),.32),inset 0 1px 0 rgba(255,255,255,.3)}
+.opt input{accent-color:var(--a-on)}
+/* progress, step bubbles, status */
+#bar{background:var(--a-fill)}#bar i{background:var(--a-grad);box-shadow:0 0 14px rgba(var(--acc),.6)}
+.sn{background:var(--a-grad);color:var(--a-on);box-shadow:0 4px 12px rgba(var(--acc),.35),inset 0 1px 0 rgba(255,255,255,.35)}
+#rst{background:var(--a-blue-soft)}
+.chip:nth-child(5)::before{background:var(--a-blue)}
+.step.dz::after{background:color-mix(in srgb,var(--a-blue) 14%,var(--a-surf));border-color:var(--a-blue);color:var(--a-blue)}
+#toast{background:var(--a-surf);color:var(--a-tx);box-shadow:var(--a-shadow),inset 0 0 0 .5px var(--a-line)}
+kbd{background:var(--a-fill);border-color:var(--a-line)}
+button.s.sendBtn{background:var(--a-grad);color:var(--a-on);box-shadow:0 6px 20px rgba(var(--acc),.3),inset 0 1px 0 rgba(255,255,255,.32)}
+button.s.sendBtn:hover{background:var(--a-grad);color:var(--a-on);box-shadow:0 10px 28px rgba(var(--acc),.45),inset 0 1px 0 rgba(255,255,255,.4)}
+summary:hover{color:var(--a-blue)}
+.opts input[type=checkbox]{accent-color:var(--a-blue)}
+/* close button (only shown when opened from the lyrics maker) */
+.xBtn{display:none;flex:none;width:34px;height:34px;padding:0;border-radius:50%;place-items:center;font-size:15px;line-height:1;background:var(--a-fill);color:var(--a-mu);box-shadow:inset 0 0 0 .5px var(--a-line)}
+.xBtn:hover{background:rgba(255,59,48,.18);color:#ff453a;box-shadow:inset 0 0 0 .5px rgba(255,69,58,.45)}
+.embedded .xBtn{display:grid}
+.backBtn{display:none;flex:none;align-items:center;gap:6px;padding:8px 14px 8px 10px;border-radius:99px;font-size:13px;background:var(--a-fill);color:var(--a-tx);box-shadow:inset 0 0 0 .5px var(--a-line)}
+.backBtn:hover{background:var(--a-fill);color:var(--a-blue);box-shadow:inset 0 0 0 .5px rgba(var(--acc),.5)}
+.embedded .backBtn{display:inline-flex}
+@media(max-width:560px){.backBtn span{display:none}.backBtn{padding:8px 10px}.brand h1{font-size:15px}.tabs button{padding:7px 8px;font-size:12px}}
+/* active tab = accent, clearly visible in dark and light */
+.tabs button.on,.tabs button.on:hover{background:var(--a-grad);color:var(--a-on);box-shadow:0 4px 14px rgba(var(--acc),.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.hd .rt{display:flex;align-items:center;gap:10px;min-width:0}
+/* ===== Layout polish: aligned panels, toolbars, options popover, nicer finder ===== */
+.w>.cols{margin-bottom:14px}
+.cols{align-items:stretch}
+.cols>.step{display:flex;flex-direction:column;margin-bottom:0;min-width:0}
+.cols>div{display:flex;flex-direction:column;min-width:0}
+.cols textarea{flex:1 1 auto;height:auto;min-height:320px}
+.step{padding:18px;border-radius:18px}
+.sh{min-height:28px;margin-bottom:12px}
+.sh .meta{padding:3px 10px;border-radius:99px;background:var(--a-fill2);box-shadow:inset 0 0 0 .5px var(--a-line)}
+.tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:36px;margin-bottom:10px}
+.tb>button.s,.bb button.s,.sh2 .grp>button.s,.tb summary{height:36px;padding:0 14px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;border-radius:10px;white-space:nowrap}
+.sh2{flex-direction:column;align-items:stretch;justify-content:flex-start;gap:8px;min-height:0;margin-bottom:10px}
+.sh2 .grp{gap:8px;min-height:36px}
+.sh2 .grp #rlang{height:36px;max-width:170px;padding:0 10px}
+.bb{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:36px;margin-top:10px}
+.bt{flex:1 1 150px;min-width:0;font-size:12.5px;line-height:1.4;color:var(--a-mu)}
+#cst.bt{margin:0;min-height:0}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
+.btns .sendBtn{padding:0 16px}
+.tb details.optd{position:relative;margin:0;padding:0;background:none;border:0;box-shadow:none;border-radius:0}
+.tb details.optd>summary{list-style:none;cursor:pointer;margin:0;background:var(--a-fill);color:var(--a-tx);box-shadow:inset 0 0 0 .5px var(--a-line);user-select:none}
+.tb details.optd>summary::-webkit-details-marker{display:none}
+.tb details.optd>summary:hover,.tb details.optd[open]>summary{color:var(--a-blue);box-shadow:inset 0 0 0 .5px rgba(var(--acc),.5)}
+.tb details.optd .opts{position:absolute;z-index:8;top:calc(100% + 8px);left:0;width:min(360px,calc(100vw - 48px));margin:0;padding:14px;gap:12px 16px;background:var(--a-surf);border-radius:14px;box-shadow:var(--a-shadow),inset 0 0 0 .5px var(--a-line),0 18px 44px rgba(0,0,0,.35)}
+.tb details.optd .opts #cgo{margin-left:auto;height:34px;padding:0 16px;background:var(--a-grad);color:var(--a-on)}
+/* Find lyrics */
+.fw{max-width:1000px}
+.box,#sum{max-width:780px;margin-left:auto;margin-right:auto}
+.box{padding:14px;border-radius:18px}
+.box input[type=text]{border-radius:12px}
+.box #t{flex:2 1 220px}.box #a{flex:1.3 1 160px}
+#go{border-radius:12px}
+#sum{justify-content:center}
+#out{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;align-items:start}
+#out>.empty{grid-column:1/-1}
+.card{position:relative;overflow:hidden;border:0;border-radius:16px;padding:16px 16px 14px;background:var(--a-surf);transition:transform .15s ease,box-shadow .15s ease}
+.card,.card.ok,.card.pl,.card.er{box-shadow:inset 0 0 0 .5px var(--a-line),var(--a-shadow)}
+.card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--a-line)}
+.card.ok::before{background:var(--ok)}.card.pl::before{background:var(--wa)}.card.er::before{background:var(--er)}
+.card.ok:hover,.card.pl:hover{transform:translateY(-2px)}
+.card .n{font-size:16px}
+.card .m{margin-top:6px}
+.card .first{margin-top:10px;padding:9px 12px;border-radius:10px;background:var(--a-fill2);box-shadow:inset 0 0 0 .5px var(--a-line);font-style:italic;color:var(--a-tx);opacity:.9}
+.act{gap:8px;margin-top:14px;align-items:center}
+.act button.s{height:32px;padding:0 12px;font-size:12.5px;display:inline-flex;align-items:center}
+.act .sendBtn{margin-left:auto;padding:0 14px}
+@media(max-width:560px){.btns{margin-left:0}#out{grid-template-columns:1fr}}
+
+/* ===== Refine pass: centered tabs, no brand, calmer spacing ===== */
+:root{--hh:64px}
+header{padding:0 18px}
+.hd{display:grid;grid-template-columns:1fr auto 1fr;gap:12px}
+.hd .brand{justify-self:start}
+.hd .rt{justify-self:end}
+.tabs{padding:4px;border-radius:14px;gap:4px}
+.tabs button{padding:9px 20px;font-size:14px;border-radius:10px;letter-spacing:-.01em;transition:color .2s,background .2s,box-shadow .2s}
+.tabs button:not(.on):hover{background:var(--a-fill2)}
+body{background:var(--a-bg);background-image:radial-gradient(900px 420px at 50% -120px,rgba(var(--acc),.13),transparent 70%);background-repeat:no-repeat;background-attachment:fixed}
+section{animation:fin .28s ease both}
+@keyframes fin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* finder */
+.fw>div{padding-top:10px}
+.box{margin-top:22px;padding:16px;border-radius:20px}
+.box .row{gap:10px;flex-wrap:nowrap}
+.box input[type=text]{padding:14px 16px;font-size:16px;min-width:0}
+#go{padding:0 30px;font-size:15px;border-radius:12px;white-space:nowrap}
+.opt{gap:8px;margin-top:12px}
+.opt label{padding:6px 14px;font-size:13px;font-weight:500}
+#sum{margin:14px auto 14px}
+.chip{padding:4px 12px}
+#out{gap:16px}
+.card{padding:18px 18px 16px;border-radius:18px}
+.card .n{font-size:17px}
+.card .m{font-size:13px;opacity:.9}
+.card pre{max-height:300px;font-size:12.5px;line-height:1.7}
+.empty{padding:36px 8px 44px}
+.empty b{font-size:22px}
+.sheet{padding:16px 20px;border-radius:18px}
+details{border-radius:16px;padding:12px 16px;max-width:780px;margin-left:auto;margin-right:auto}
+/* converter */
+.w{max-width:1040px}
+.step{padding:20px;border-radius:20px}
+.sh b{font-size:17px}
+.cols{gap:16px}
+textarea{border-radius:12px;line-height:1.7;font-size:13px}
+.step .hint,#rst{border-radius:12px}
+/* scrollbars */
+*{scrollbar-width:thin;scrollbar-color:rgba(var(--acc),.35) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-thumb{background:rgba(128,132,150,.35);border-radius:99px;border:3px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:rgba(var(--acc),.55);background-clip:content-box;border:3px solid transparent}
+*::-webkit-scrollbar-track{background:transparent}
+::selection{background:rgba(var(--acc),.35)}
+@media(max-width:700px){
+ header{padding:0 10px}
+ .tabs button{padding:8px 12px;font-size:13px}
+ .box .row{flex-wrap:wrap}.box #t,.box #a{flex:1 1 100%}#go{width:100%;padding:13px}
+}
+@media(max-width:420px){.tabs button{padding:8px 9px;font-size:12px}}
+
+/* ===== Finder alignment: one centered column for search, chips, results and provider ===== */
+#p1 .fw{max-width:880px;margin:0 auto}
+#p1 .box,#p1 #sum,#p1 details,#p1 #out{max-width:none;width:100%;margin-left:0;margin-right:0}
+#p1 #out{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:16px;align-items:start}
+#p1 details{margin-top:18px}
+#p1 .card{width:100%;min-width:0}
+#p1 .card .act{flex-wrap:wrap}
+#p1 .card .act .sendBtn{margin-left:auto}
+#p1 .card pre{width:100%}
+@media(max-width:700px){#p1 #out{grid-template-columns:1fr}}
+
+/* ===== Status box: red when something needs fixing, green when all good ===== */
+#rst{display:block;transition:background .2s,box-shadow .2s}
+#rst.ok{background:rgba(48,209,88,.12);box-shadow:inset 3px 0 0 var(--ok),inset 0 0 0 .5px rgba(48,209,88,.4)}
+#rst.bad{background:rgba(255,69,58,.15);box-shadow:inset 3px 0 0 var(--er),inset 0 0 0 .5px rgba(255,69,58,.5)}
+#rst.bad::before{content:"\26A0\FE0E  ";color:var(--er);font-weight:700}
+#rst .ln{display:inline-block;margin:0 1px;padding:1px 9px;border-radius:99px;background:var(--er);color:#fff;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(255,69,58,.35);transition:transform .1s,filter .15s}
+#rst .ln:hover{filter:brightness(1.12);transform:translateY(-1px)}
+#rst .ln:focus-visible{outline:2px solid #fff;outline-offset:2px}
+textarea::selection{background:rgba(255,69,58,.45)}
+
+/* ===== Compact boxes ===== */
+.cols textarea,.step textarea{flex:0 0 auto;height:200px;min-height:0}
+.step{padding:16px;border-radius:18px}
+.sh{margin-bottom:8px}.tb{margin-bottom:8px}
+.bb{margin-top:8px}
+#rst{padding:7px 12px;margin-bottom:10px;font-size:12.5px}
+.sh2{margin-bottom:8px}
+#p1 .card pre{max-height:220px}
+#rst .ln.fixed{background:var(--ok);color:#04170f;box-shadow:0 2px 8px rgba(48,209,88,.3)}
+#rout{background:var(--a-surf)}
+</style>
+</head>
+<body>
+<header><div class="w hd"><div class="brand"><button type="button" class="backBtn" id="backBtn" aria-label="Back to lyrics maker" title="Back (Esc)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span>Back</span></button></div><nav class="tabs" role="tablist"><button id="tab1" class="on" role="tab">Find lyrics</button><button id="tab2" role="tab">Convert &amp; romanize</button></nav><div class="rt"><button type="button" class="xBtn" id="xBtn" aria-label="Close Lyrics Toolkit" title="Close (Esc)">&#10005;</button></div></div></header>
+<section id="p1"><div class="fw" style="padding:0 0">
+<div style="padding:0 16px 48px">
+<div class="box">
+ <div class="row"><input type="text" id="t" placeholder="Song title" enterkeyhint="search" autocomplete="off"><input type="text" id="a" placeholder="Artist (optional)"><button id="go">Search</button></div>
+ <div class="opt">
+  <label><input type="checkbox" id="px" checked> Retry blocked ones via public CORS proxy</label>
+  <label><input type="checkbox" id="ro"> Romanized (Latin) only</label>
+  <label><input type="checkbox" id="hf" checked> Hide failed / empty</label>
+ </div>
+ <div id="bar"><i></i></div>
+</div>
+<div id="sum"></div>
+<div id="out" class="hide"><div class="empty"><div class="sheet" aria-hidden="true"><p><i>[00:12.40]</i>First line of the verse</p><p><i>[00:16.85]</i>Second line follows the beat</p><p><i>[00:21.10]</i>The chorus lands right here</p><p><i>[00:26.30]</i>Last line fades out</p></div><b>Search a song to begin</b><p>Searches many providers at once. Tick “Romanized only” if you want Latin-script lyrics. Press <kbd>/</kbd> anytime to jump to search.</p>
+<div class="ex"><span class="hint" style="margin:0">Try:</span><button class="s" data-t="Tum Hi Ho" data-a="Arijit Singh">Tum Hi Ho</button><button class="s" data-t="Kesariya" data-a="Arijit Singh">Kesariya</button><button class="s" data-t="Shape of You" data-a="Ed Sheeran">Shape of You</button></div></div></div>
+<details><summary>➕ Add a custom provider</summary>
+ <div class="row"><input type="text" id="cn" placeholder="Name"><input type="text" id="cu" placeholder="URL, use {title} {artist} {q}"></div>
+ <div class="row"><select id="ct"><option value="text">Response is LRC text</option><option value="json">Response is JSON</option></select><input type="text" id="cp" placeholder="JSON path to lyrics, e.g. data.0.syncedLyrics"><button class="s" id="ca">Add</button></div>
+ <div class="hint" id="cl"></div>
+</details>
+</div>
+<div id="toast"></div>
+</div></section>
+<section id="p2" hidden><div class="w" style="padding:16px 16px 40px">
+<div class="cols">
+ <div class="step"><div class="sh"><span class="sn">1</span><b>Paste timed lyrics</b><span class="sp"></span><span class="meta" id="icnt">0 lines</span></div>
+  <div class="tb"><button class="s" id="cfile">📂 Open</button><button class="s" id="cclear">Clear</button></div>
+  <textarea id="cin" spellcheck="false" placeholder="Paste word-level LRC, enhanced LRC, standard LRC, SRT or VTT here…&#10;or drop a .lrc / .srt / .vtt file anywhere on this card."></textarea>
+  <div class="bb"><span class="bt">Tip: drop a .lrc / .srt / .vtt file anywhere on this card.</span></div>
+  <input type="file" id="cpick" accept=".lrc,.txt,.srt,.vtt,text/*" hidden></div>
+ <div class="step"><div class="sh"><span class="sn">2</span><b>Clean line-level LRC</b><span class="sp"></span><span class="meta" id="ocnt">0 timed lines</span></div>
+  <div class="tb"><details class="optd"><summary>⚙ Options</summary><div class="opts">
+   <label>Decimals <select id="cdec"><option value="2" selected>2 (.xx)</option><option value="3">3 (.xxx)</option></select></label>
+   <label><input type="checkbox" id="cspace" checked> Space after timestamp</label>
+   <label><input type="checkbox" id="cblank" checked> Keep empty lines</label>
+   <label><input type="checkbox" id="cmeta" checked> Keep [ar:] / [ti:] tags</label>
+   <label>Offset (ms) <input type="number" id="coff" value="0" step="10"></label>
+   <button class="s" id="cgo">Convert</button></div></details></div>
+  <textarea id="cout" spellcheck="false" readonly placeholder="Converted lyrics appear here instantly as you paste."></textarea>
+  <div class="bb"><div id="cst" class="bt"></div><span class="btns"><button class="s" id="ccopy">📋 Copy</button><button class="s" id="cdl">⬇ .lrc</button><button class="s sendBtn" id="csend" title="Send these lyrics straight into the lyrics box">📨 Send lyrics</button></span></div></div>
+</div>
+<div class="step"><div class="sh"><span class="sn">3</span><b>Romanize <small class="meta">(optional)</small></b><span class="sp"></span><span class="meta" id="rcnt">0 pasted</span></div>
+<div class="hint" id="rst" role="status" aria-live="polite">Press Online romanize, then paste your correct Roman lyrics on the left. They replace the matching lines automatically.</div>
+ <div class="cols">
+  <div><div class="sh2"><span>Your Roman lyrics</span><span class="grp"><button class="s" id="rclear">Clear</button><button class="s" id="rapply" title="Strict one-to-one: line 1 goes to timed line 1. Only needed if auto-match gets it wrong.">1:1 apply</button></span></div>
+   <textarea id="rin" spellcheck="false" placeholder="Paste your own Roman lyrics here. They are matched to the timed lines automatically and replace the online result. Line breaks do not have to match."></textarea><div class="bb"><span class="bt">Line breaks don’t have to match. Use “1:1 apply” only if the auto-match is off.</span></div></div>
+  <div><div class="sh2"><span>Romanized LRC</span><span class="grp"><select id="rlang" class="s" title="Language of the lyrics"><option value="auto">Auto-detect language</option>
+<optgroup label="South Asia"><option value="hi">Hindi</option><option value="ne">Nepali</option><option value="ur">Urdu</option><option value="mr">Marathi</option><option value="pa">Punjabi</option><option value="gu">Gujarati</option><option value="bn">Bengali</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="kn">Kannada</option><option value="ml">Malayalam</option><option value="si">Sinhala</option></optgroup>
+<optgroup label="Middle East"><option value="ar">Arabic</option><option value="fa">Persian</option><option value="he">Hebrew</option></optgroup>
+<optgroup label="East &amp; Southeast Asia"><option value="ja">Japanese</option><option value="ko">Korean</option><option value="zh-CN">Chinese (Simplified)</option><option value="zh-TW">Chinese (Traditional)</option><option value="th">Thai</option><option value="my">Burmese</option><option value="km">Khmer</option><option value="lo">Lao</option><option value="mn">Mongolian</option></optgroup>
+<optgroup label="Europe &amp; Caucasus"><option value="ru">Russian</option><option value="uk">Ukrainian</option><option value="bg">Bulgarian</option><option value="sr">Serbian</option><option value="el">Greek</option><option value="ka">Georgian</option><option value="hy">Armenian</option></optgroup>
+<optgroup label="Africa"><option value="am">Amharic</option></optgroup></select><button class="s" id="ronline">🌐 Online romanize</button><button class="s" id="rauto" title="Offline and approximate. Covers Urdu/Arabic, all Indian scripts, Russian/Ukrainian, Greek, Korean and Japanese kana. For Chinese or Thai use Online.">✨ Quick</button></span></div>
+   <textarea id="rout" spellcheck="false" placeholder="Result appears here. You can edit any line."></textarea><div class="bb"><span class="bt"></span><span class="btns"><button class="s" id="rcopy">📋 Copy</button><button class="s" id="rdl">⬇ .lrc</button><button class="s sendBtn" id="rsend" title="Send these lyrics straight into the lyrics box">📨 Send lyrics</button></span></div></div>
+ </div>
+</div>
+</div></section>
+<script>
+const $=id=>document.getElementById(id),enc=encodeURIComponent;
+const ms=v=>{v=Math.max(0,Math.round(v));const m=Math.floor(v/60000),s=((v%60000)/1000).toFixed(2).padStart(5,'0');return `[${String(m).padStart(2,'0')}:${s}]`};
+const tt=s=>String(s).replace(/s$/,'').split(':').reduce((x,y)=>x*60+parseFloat(y),0)*1000;
+const lrcOf=arr=>arr.filter(l=>l.text!=null&&String(l.text).trim()!=='').map(l=>ms(l.t)+String(l.text).trim()).join('\n');
+/* section labels like [Chorus] [Verse 1] [Outro: names] (Bridge) are not lyrics: never show them */
+const lyIsTag=x=>{x=String(x).trim();return /^\[[^\]\d\s][^\]]*\]$/.test(x)||/^\((?:intro|outro|verse|chorus|pre[\s-]?chorus|post[\s-]?chorus|bridge|hook|refrain|interlude|instrumental|solo|guitar solo|drop|spoken|ad[\s-]?libs?|skit|repeat|x\d)[^)]*\)$/i.test(x)||/^(?:intro|outro|verse|chorus|pre[\s-]?chorus|post[\s-]?chorus|bridge|hook|refrain|interlude|instrumental)\s*\d*\s*:[^\n]{0,60}$/i.test(x)};
+const lyNoTag=x=>{let p;x=String(x);do{p=x;x=x.replace(/^\s*\[[^\]\d\s][^\]]*\]\s*/,'')}while(x!==p);return x.trim()};
+const lyClean=t=>String(t).split('\n').map(l=>{const m=l.match(/^(\s*(?:\[\d+:\d+(?:[.:]\d+)?\]\s*)+)(.*)$/);
+  if(m){const body=lyIsTag(m[2])?'':lyNoTag(m[2]);return body?m[1]+body:m[1].trimEnd()}
+  const x=l.trim();if(!x)return l;if(/^\[(ar|ti|al|au|by|offset|length|re|ve|la):/i.test(x))return l;return lyIsTag(x)?null:lyNoTag(x)}).filter(l=>l!==null).join('\n');
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1600)};
+
+async function get(url,type,ctx){
+  const run=u=>fetch(u,{signal:AbortSignal.timeout(14000)});let r;
+  try{r=await run(url)}catch(e){
+    if(!$('px').checked)throw new Error('Blocked by CORS / network');
+    try{r=await run('https://corsproxy.io/?url='+enc(url));ctx.proxied=true}catch(e2){throw new Error('Blocked by CORS / network (proxy failed too)')}
+  }
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return type==='text'?r.text():r.json();
+}
+function ttml(x){const d=new DOMParser().parseFromString(x,'text/xml');
+  return lrcOf([...d.querySelectorAll('p')].map(p=>({t:tt(p.getAttribute('begin')||0),text:p.textContent})))}
+
+const isLatin=s=>{const t=String(s||'').replace(/\[[^\]]*\]|<[^>]*>/g,'');const L=t.match(/\p{L}/gu)||[];return L.length>0&&L.filter(c=>/[A-Za-z\u00C0-\u024F]/.test(c)).length/L.length>.8};
+const pick=arr=>{const ok=x=>!$('ro').checked||isLatin(x.syncedLyrics||x.plainLyrics);
+  return arr.find(x=>x.syncedLyrics&&ok(x))||arr.find(x=>ok(x)&&(x.syncedLyrics||x.plainLyrics))||arr.find(x=>x.syncedLyrics)||arr[0]};
+const P=[
+{name:'LRCLIB',run:async(q,c)=>{
+  const j=await get(`https://lrclib.net/api/search?q=${enc(q.s)}`,'json',c);
+  const r=pick(j);return r&&{lrc:r.syncedLyrics,plain:r.plainLyrics,info:`${r.trackName} — ${r.artistName}`}}},
+{name:'SimpMusic',run:async(q,c)=>{
+  const j=await get(`https://api-lyrics.simpmusic.org/v1/search?q=${enc(q.s)}`,'json',c);
+  const l=j.data||j,r=pick(Array.isArray(l)?l:[]);
+  return r&&{lrc:r.syncedLyrics,plain:r.plainLyrics,info:`${r.songTitle||r.title||''} — ${r.artistName||''}`}}},
+{name:'Better Lyrics',run:async(q,c)=>{
+  const j=await get(`https://lyrics-api.boidu.dev/getLyrics?s=${enc(q.t)}&a=${enc(q.a)}`,'json',c);
+  return j&&j.ttml?{lrc:ttml(j.ttml),info:'TTML converted to LRC'}:null}},
+{name:'LyricsPlus',run:async(q,c)=>{
+  let err;for(const b of['https://lyricsplus.prjktla.workers.dev','https://lyricsplus.binimum.org']){
+    try{const j=await get(`${b}/v2/lyrics/get?title=${enc(q.t)}&artist=${enc(q.a)}&source=apple,lyricsplus,musixmatch,spotify`,'json',c);
+      const L=j.lyrics||[];if(L.length)return{lrc:lrcOf(L.map(l=>({t:l.time,text:l.text}))),info:'Source: '+(j.metadata?.source||'LyricsPlus')}}
+    catch(e){err=e}}
+  if(err)throw err;return null}},
+{name:'Kugou',run:async(q,c)=>{
+  const s=await get(`https://mobilecdn.kugou.com/api/v3/search/song?format=json&keyword=${enc(q.s)}&page=1&pagesize=3`,'json',c);
+  const it=s.data?.info?.[0];if(!it)return null;
+  const k=await get(`https://lyrics.kugou.com/search?ver=1&man=yes&client=pc&keyword=${enc(q.s)}&hash=${it.hash}`,'json',c);
+  const cd=k.candidates?.[0];if(!cd)return null;
+  const d=await get(`https://lyrics.kugou.com/download?ver=1&client=pc&id=${cd.id}&accesskey=${cd.accesskey}&fmt=lrc&charset=utf8`,'json',c);
+  const u=Uint8Array.from(atob(d.content),x=>x.charCodeAt(0));
+  return{lrc:new TextDecoder().decode(u).replace(/^\uFEFF/,''),info:it.filename}}},
+{name:'Megalobiz',run:async(q,c)=>{
+  const h=await get(`https://www.megalobiz.com/search/all?qry=${enc(q.s)}`,'text',c);
+  const a=new DOMParser().parseFromString(h,'text/html').querySelector('a[href*="/lrc/maker/"]');if(!a)return null;
+  const href=a.getAttribute('href');const p=await get(href.startsWith('http')?href:'https://www.megalobiz.com'+href,'text',c);
+  const e=new DOMParser().parseFromString(p,'text/html').querySelector('[id^="lrc_"][id$="_lyrics"]');
+  return e&&{lrc:e.textContent.trim(),info:a.textContent.trim()}}},
+{name:'Paxsenix · Apple Music',tag:'experimental',run:async(q,c)=>{
+  const s=await get(`https://lyrics.paxsenix.org/apple-music/search?q=${enc(q.s)}`,'json',c);
+  const it=(Array.isArray(s)?s:s.results||s.data||[])[0];if(!it)return null;
+  const j=await get(`https://lyrics.paxsenix.org/apple-music/lyrics?id=${it.id||it.trackId}`,'json',c);
+  const L=j.content||[];if(!L.length)return null;
+  return{lrc:lrcOf(L.map(l=>({t:l.timestamp??l.text?.[0]?.timestamp??0,text:Array.isArray(l.text)?l.text.map(x=>x.text).join(''):l.text}))),
+    info:`${it.songName||it.name||''} — ${it.artistName||''}`}}},
+{name:'NetEase',tag:'experimental',run:async(q,c)=>{
+  const s=await get(`https://music.163.com/api/search/get?s=${enc(q.s)}&type=1&limit=3`,'json',c);
+  const it=s.result?.songs?.[0];if(!it)return null;
+  const l=await get(`https://music.163.com/api/song/lyric?id=${it.id}&lv=1&kv=1&tv=-1`,'json',c);
+  return{lrc:l.lrc?.lyric,info:`${it.name} — ${(it.artists||[]).map(x=>x.name).join(', ')}`}}},
+{name:'lyrics.ovh',tag:'plain only',run:async(q,c)=>{
+  if(!q.a)throw new Error('Needs an artist name');
+  const j=await get(`https://api.lyrics.ovh/v1/${enc(q.a)}/${enc(q.t)}`,'json',c);
+  return j.lyrics?{plain:j.lyrics,info:`${q.t} — ${q.a}`}:null}}
+];
+
+// custom providers (saved in this browser)
+let CU=[];try{CU=JSON.parse(localStorage.getItem('cu')||'[]')}catch(e){}
+const saveCU=()=>{try{localStorage.setItem('cu',JSON.stringify(CU))}catch(e){}};
+const customP=()=>CU.map(x=>({name:x.n,tag:'custom',run:async(q,c)=>{
+  const u=x.u.replace(/{title}/g,enc(q.t)).replace(/{artist}/g,enc(q.a)).replace(/{q}/g,enc(q.s));
+  if(x.t==='text'){const t=await get(u,'text',c);return t&&{lrc:t}}
+  let j=await get(u,'json',c);for(const k of x.p.split('.').filter(Boolean))j=j?.[k];
+  return typeof j==='string'&&j?{lrc:j}:null}}));
+function listCU(){$('cl').innerHTML=CU.length?'Saved: '+CU.map((x,i)=>`${x.n} <a href="#" data-i="${i}">remove</a>`).join(' · '):'';}
+$('cl').onclick=e=>{const i=e.target.dataset?.i;if(i!=null){e.preventDefault();CU.splice(i,1);saveCU();listCU()}};
+$('ca').onclick=()=>{const n=$('cn').value.trim(),u=$('cu').value.trim();if(!n||!u)return toast('Name and URL needed');
+  CU.push({n,u,t:$('ct').value,p:$('cp').value.trim()});saveCU();listCU();toast('Added '+n)};
+listCU();
+
+const RANK={ok:0,pl:1,ld:2,no:3,er:4};let stats;
+function sum(){const s=stats;$('sum').innerHTML=[`${s.ok} synced`,`${s.pl} plain`,`${s.no} no result`,`${s.er} failed`,s.ld?`${s.ld} searching`:''].filter(Boolean)
+  .map(x=>`<span class="chip">${x}</span>`).join('');$('bar').firstChild.style.width=(100*(s.total-s.ld)/s.total)+'%';if(!s.ld)setTimeout(()=>$('bar').style.opacity=0,500)}
+function set(el,k,label){el.dataset.k=k;el.classList.remove('ok','pl','er','ld','x');el.classList.add(k==='no'?'x':k,...(k==='er'||k==='no'?['x']:[]));
+  el.style.order=RANK[k];el.querySelector('.b').textContent=label}
+
+async function search(){
+  const t=$('t').value.trim(),a=$('a').value.trim();if(!t)return $('t').focus();
+  const q={t,a,s:(t+' '+a).trim()},out=$('out'),all=[...P,...customP()];out.innerHTML='';
+  out.className=$('hf').checked?'hide':'';$('bar').style.opacity=1;
+  stats={ok:0,pl:0,no:0,er:0,ld:all.length,total:all.length};sum();
+  await Promise.all(all.map(async p=>{
+    const el=document.createElement('div');el.className='card ld';
+    el.innerHTML=`<div class="h"><span class="n">${p.name}${p.tag?`<small>${p.tag}</small>`:''}</span><span class="b">searching…</span></div>`;out.append(el);
+    const fin=(k,label,extra)=>{stats.ld--;stats[k]++;set(el,k,label);if(extra)el.append(...extra);sum()};
+    const note=txt=>{const m=document.createElement('div');m.className='m';m.textContent=txt;return m};
+    const ctx={};
+    try{
+      const r=await p.run(q,ctx);
+      if(!r||(!r.lrc&&!r.plain))return fin('no','no result');
+      const synced=/\[\d+:\d+/.test(r.lrc||'');const text=lyClean(synced?r.lrc:(r.plain||r.lrc));
+      const lat=isLatin(text);if($('ro').checked&&!lat)return fin('no','not romanized');
+      const lines=text.split('\n').filter(x=>x.trim());
+      const first=(lines.find(x=>x.replace(/\[[^\]]*\]/g,'').trim())||'').replace(/\[[^\]]*\]/g,'').trim();
+      const m=note(`${r.info||''}${r.info?' · ':''}${lines.length} lines`);
+      const f=note('“'+first+'”');f.classList.add('first');
+      const pre=document.createElement('pre');pre.textContent=text;pre.hidden=true;
+      const act=document.createElement('div');act.className='act';
+      const mk=(l,fn,cls)=>{const b=document.createElement('button');b.className='s'+(cls?' '+cls:'');b.textContent=l;b.onclick=()=>fn(b);act.append(b)};
+      mk('👁 Preview',b=>{pre.hidden=!pre.hidden;b.textContent=pre.hidden?'👁 Preview':'🙈 Hide'});
+      mk('📋 Copy',async()=>{await navigator.clipboard.writeText(text);toast('Copied')});
+      if(lat)mk('📝 Use as Roman text',()=>toRoman(text));
+      mk('🔁 Convert',()=>{show(2);convertText(text)});
+      mk('⬇ Download .lrc',()=>{const u=URL.createObjectURL(new Blob([text],{type:'text/plain'}));const l=document.createElement('a');l.href=u;l.download=`${t}${a?' - '+a:''} (${p.name}).lrc`;l.click();URL.revokeObjectURL(u)});
+      if(synced)mk('📨 Send lyrics',()=>parent.postMessage({tk:'send',text},'*'),'sendBtn');
+      fin(synced?'ok':'pl',(synced?'synced':'plain only')+(lat?' · Roman':'')+(ctx.proxied?' · via proxy':''),[m,f,act,pre]);
+    }catch(e){fin('er','failed',[note(e.message)])}
+  }));
+}
+$('hf').onchange=()=>$('out').className=$('hf').checked?'hide':'';
+$('go').onclick=search;[$('t'),$('a')].forEach(i=>i.addEventListener('keydown',e=>e.key==='Enter'&&search()));
+<\/script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const inp=$('cin'),out=$('cout'),st=$('cst');window.convertText=t=>{inp.value=t;convert()};
+const WORD=/<\s*\d+:\d+(?:[.:]\d+)?(?:\s*\|\s*\d+:\d+(?:[.:]\d+)?)?\s*>/g;
+const WORD1=/<\s*(\d+):(\d+)(?:[.:](\d+))?(?:\s*\|[^>]*)?>/;
+const LEAD=/^\s*((?:\[\d+:\d+(?:[.:]\d+)?\]\s*)+)/;
+const STAMP=/\[(\d+):(\d+)(?:[.:](\d+))?\]/g;
+const SRT=/^\s*(?:(\d+):)?(\d+):(\d+)[,.](\d+)\s*-->/;
+function ms(m,s,f){const frac=f?Math.round(parseFloat('0.'+f)*1000):0;return (+m)*60000+(+s)*1000+frac}
+function fmt(t,d,sp){t=Math.max(0,t);let v=d===2?Math.round(t/10):Math.round(t);const unit=d===2?100:1000;
+  const m=Math.floor(v/(60*unit)),s=Math.floor((v%(60*unit))/unit),f=v%unit;
+  return '['+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')+'.'+String(f).padStart(d,'0')+']'+(sp?' ':'')}
+function clean(s){return s.replace(/\{[^}]*\}/g,'').replace(WORD,'').replace(/<[^>]*>/g,'').replace(/\s+/g,' ').trim()}
+function parse(text){
+  const lines=text.replace(/\r/g,'').split('\n'),items=[],meta=[];
+  for(let i=0;i<lines.length;i++){
+    const L=lines[i];
+    let m=L.match(SRT);
+    if(m){const t=(m[1]?+m[1]*3600000:0)+(+m[2])*60000+(+m[3])*1000+Math.round(parseFloat('0.'+m[4])*1000);
+      const buf=[];let j=i+1;while(j<lines.length&&lines[j].trim()!==''){buf.push(clean(lines[j]));j++}
+      items.push({t,text:buf.join(' ').trim()});i=j;continue}
+    const mt=L.match(/^\s*\[([a-zA-Z]+):([^\]]*)\]\s*$/);
+    if(mt){meta.push(L.trim());continue}
+    m=L.match(LEAD);
+    if(m){const rest=clean(L.slice(m[0].length));const times=[];let x;STAMP.lastIndex=0;
+      while((x=STAMP.exec(m[1])))times.push(ms(x[1],x[2],x[3]));
+      times.forEach(t=>items.push({t,text:rest}));continue}
+    const w=L.match(WORD1);
+    if(w&&L.trim().startsWith('<')){items.push({t:ms(w[1],w[2],w[3]),text:clean(L)})}
+  }
+  return{items,meta}
+}
+function convert(){
+  const {items,meta}=parse(inp.value);
+  items.forEach(x=>{x.text=lyIsTag(x.text)?'':lyNoTag(x.text)});
+  const d=+$('cdec').value,sp=$('cspace').checked,off=+$('coff').value||0;
+  let arr=items.map((x,i)=>({...x,i}));
+  if(!$('cblank').checked)arr=arr.filter(x=>x.text);
+  arr.sort((a,b)=>a.t-b.t||a.i-b.i);
+  const lines=[];
+  if($('cmeta').checked)lines.push(...meta);
+  arr.forEach(x=>lines.push((fmt(x.t+off,d,sp&&!!x.text)+x.text).trimEnd()));
+  out.value=lines.join('\n');
+  st.textContent=arr.length?('Converted '+arr.length+' lines.'):'No timed lines found. Check the input format.';
+}
+$('cgo').onclick=convert;
+inp.addEventListener('input',convert);
+['cdec','cspace','cblank','cmeta','coff'].forEach(id=>$(id).addEventListener('input',convert));
+$('cclear').onclick=()=>{inp.value='';out.value='';st.textContent=''};
+$('cfile').onclick=()=>$('cpick').click();
+$('cpick').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{inp.value=r.result;convert()};r.readAsText(f)};
+$('ccopy').onclick=async()=>{try{await navigator.clipboard.writeText(out.value)}catch(e){out.select();document.execCommand('copy')}st.textContent='Copied to clipboard.'};
+$('cdl').onclick=()=>{const b=new Blob([out.value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='lyrics.lrc';a.click()};
+const rin=$('rin'),rout=$('rout'),rst=$('rst'),TS=/^(\[\d+:\d+(?:[.:]\d+)?\]\s*)(.*)$/;
+const UR={'ب':'b','پ':'p','ت':'t','ٹ':'t','ث':'s','ج':'j','چ':'ch','ح':'h','خ':'kh','د':'d','ڈ':'d','ذ':'z','ر':'r','ڑ':'r','ز':'z','ژ':'zh','س':'s','ش':'sh','ص':'s','ض':'z','ط':'t','ظ':'z','غ':'gh','ف':'f','ق':'q','ک':'k','گ':'g','ل':'l','م':'m','ن':'n','ں':'n','ہ':'h','ۃ':'h','ھ':'h'};
+const UV={'\u064E':'a','\u0650':'i','\u064F':'u'},UKEEP='\u064E\u0650\u064F\u0651';
+const UD={'ہے':'hai','ہیں':'hain','میں':'main','کو':'ko','کی':'ki','کا':'ka','کے':'ke','سے':'se','نے':'ne','تو':'to','بھی':'bhi','اور':'aur','نہیں':'nahin','ہم':'hum','تم':'tum','یہ':'yeh','وہ':'woh','کیا':'kya','جو':'jo','کہ':'keh','پر':'par','تھا':'tha','تھی':'thi','تھے':'the','ہو':'ho','ہوں':'hoon','اس':'is','ان':'un','دل':'dil','عشق':'ishq','تیرے':'tere','تیرا':'tera','تیری':'teri','میرا':'mera','میری':'meri','میرے':'mere'};
+function romWord(w){
+  w=w.replace(/[\u064B-\u065F\u0670]/g,m=>UKEEP.includes(m)?m:'');
+  if(UD[w])return UD[w];
+  const ch=[...w],n=ch.length,isC=c=>c&&UR[c]&&c!=='ھ';let o='';
+  for(let i=0;i<n;i++){const c=ch[i],nx=ch[i+1],pv=ch[i-1];
+    if(UV[c]){o+=UV[c];continue}
+    if(c==='\u0651'){o+=o.slice(-1);continue}
+    if(c==='ا'){o+=i?'aa':'a';continue}
+    if(c==='آ'){o+='aa';continue}
+    if(c==='و'){o+=((!i&&(nx==='ا'||nx==='ی'||nx==='ے'))||pv==='ا')?'w':'o';continue}
+    if(c==='ی'){o+=(!i&&(nx==='ا'||nx==='و'||nx==='ے'))?'y':'i';continue}
+    if(c==='ے'){o+='e';continue}
+    if(c==='ئ'){o+='y';continue}
+    if(c==='ع'){o+=i?'':'a';continue}
+    if(c==='ء')continue;
+    if(c==='ھ'){o+='h';continue}
+    if(UR[c]){o+=UR[c];if(isC(nx))o+='a';continue}
+    o+=c}
+  return o}
+const romLine=s=>s.replace(/[\u0621-\u06D3]+/g,romWord).replace(/،/g,',').replace(/؟/g,'?').replace(/۔/g,'.');
+$('rauto').onclick=()=>{rout.value=out.value.split('\n').map(l=>{const m=l.match(TS);return m?(m[1]+romLine(m[2])).trimEnd():l}).join('\n');
+  rst.textContent=rout.value.trim()?'Auto-romanize done. Short vowels are guessed, so the result may need edits. For the best result, paste your own Roman lyrics and apply the timestamps.':'Convert first (the output is empty).'};
+$('rapply').onclick=()=>{const txt=rin.value.split('\n').map(x=>x.trim()).filter(Boolean);let k=0;const L=out.value.split('\n');
+  const need=L.filter(l=>{const m=l.match(TS);return m&&m[2].trim()}).length;
+  rout.value=L.map(l=>{const m=l.match(TS);if(!m)return l;if(!m[2].trim())return l.trimEnd();return(m[1]+(txt[k++]||'')).trimEnd()}).join('\n');
+  rst.textContent=!need?'Convert first (the output is empty).':need===txt.length?'Done: timestamps applied to '+need+' lines.':'Heads up: '+need+' timed lines but '+txt.length+' pasted lines, so they do not match. Adjust the lines and apply again.'};
+$('rcopy').onclick=async()=>{try{await navigator.clipboard.writeText(rout.value)}catch(e){rout.select();document.execCommand('copy')}rst.textContent='Copied.'};
+$('rdl').onclick=()=>{const b=new Blob([rout.value],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='lyrics-roman.lrc';a.click()};
+})();
+<\/script>
+<script>
+const upd=()=>{const c=s=>s.split('\n').filter(x=>x.trim()).length;
+ $('icnt').textContent=c($('cin').value)+' lines';
+ $('ocnt').textContent=$('cout').value.split('\n').filter(l=>/^\[\d+:/.test(l)).length+' timed lines';
+ $('rcnt').textContent=c($('rin').value)+' pasted'};
+const show=(n,keep)=>{$('p1').hidden=n!==1;$('p2').hidden=n!==2;
+ [1,2].forEach(i=>{$('tab'+i).classList.toggle('on',n===i);$('tab'+i).setAttribute('aria-selected',n===i)});
+ if(!keep)try{history.replaceState(null,'',n===1?'#find':'#convert')}catch(e){}scrollTo(0,0);if(n===2)upd()};
+setInterval(()=>{if(!$('p2').hidden)upd()},400);
+window.toRoman=t=>{$('rin').value=t.split('\n').map(l=>l.replace(/\[[^\]]*\]|<[^>]*>/g,'').trim()).filter(Boolean).join('\n');show(2);toast('Roman text pasted — now press Apply timestamps')};
+$('tab1').onclick=()=>show(1);$('tab2').onclick=()=>show(2);
+addEventListener('hashchange',()=>show(location.hash==='#convert'?2:1,true));
+if(location.hash==='#convert')show(2,true);
+const dz=$('cin').closest('.step');
+['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('dz')}));
+['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('dz')}));
+dz.addEventListener('drop',ev=>{const f=ev.dataTransfer.files[0];if(f)f.text().then(t=>{$('cin').value=t;$('cin').dispatchEvent(new Event('input'));toast('Loaded '+f.name)})});
+[['ccopy','Copied'],['rcopy','Copied'],['cdl','Downloaded'],['rdl','Downloaded']].forEach(([i,m])=>$(i).addEventListener('click',()=>toast(m)));
+const sendOut=(src,hint)=>{if(!src.value.trim()){hint.textContent='Nothing to send yet. Convert some lyrics first.';toast('Nothing to send yet');return}parent.postMessage({tk:'send',text:src.value},'*')};
+$('csend').addEventListener('click',()=>sendOut($('cout'),$('cst')));
+document.addEventListener('click',e=>{const d=document.querySelector('details.optd');if(d&&d.open&&!d.contains(e.target))d.open=false});
+$('rsend').addEventListener('click',()=>sendOut($('rout'),$('rst')));
+$('out').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;$('t').value=b.dataset.t;$('a').value=b.dataset.a||'';$('go').click()});
+addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();show(1);$('t').focus()}});
+<\/script>
+<script>
+(function(){
+const $=id=>document.getElementById(id),TS=/^(\[\d+:\d+(?:[.:]\d+)?\]\s*)(.*)$/;
+// Google's transliteration of the source text sits in a segment shaped [null,null,x,srcTranslit]
+function extractRm(d){const seg=(d&&d[0])||[];
+  return seg.filter(x=>x&&x[0]==null&&typeof x[3]==='string').map(x=>x[3]).join(' ').replace(/\s+/g,' ').trim()}
+const gurl=(text,sl)=>'https://translate.googleapis.com/translate_a/single?client=gtx&sl='+sl+'&tl=en&dt=t&dt=rm&q='+encodeURIComponent(text);
+async function rom(text,sl){const d=await get(gurl(text,sl),'json',{});return extractRm(d)}
+const langName=c=>{try{return new Intl.DisplayNames(['en'],{type:'language'}).of(c)}catch(e){return c}};
+window._extractRm=extractRm;
+let busy=false;
+$('ronline').onclick=async()=>{
+  if(busy)return;
+  const rst=$('rst'),rout=$('rout'),L=$('cout').value.split('\n');
+  const jobs=[];L.forEach((l,i)=>{const m=l.match(TS);if(m&&m[2].trim()&&!/^[\x00-\u024F\u1E00-\u1EFF\s\p{P}\p{S}]+$/u.test(m[2]))jobs.push({i,m})});
+  if(!L.join('').trim())return rst.textContent='Convert first (the output is empty).';
+  if(!jobs.length)return rst.textContent='No non-Latin lines found to romanize. The lyrics already look Roman.';
+  busy=true;window.__romBusy=true;const btn=$('ronline'),lab=btn.textContent;btn.disabled=true;
+  const res=[...L];let done=0,fail=0,k=0,first='';
+  let sl=$('rlang').value;const paint=()=>{rout.value=res.map(x=>x.trimEnd()).join('\n')};
+  if(sl==='auto'){rst.textContent='Detecting language…';
+    try{const q=jobs.slice(0,10).map(j=>j.m[2]).join(' ').slice(0,600);const d=await get(gurl(q,'auto'),'json',{});
+      if(d&&typeof d[2]==='string'&&d[2]!=='und')sl=d[2]}catch(e){}}
+  const worker=async()=>{while(k<jobs.length){const j=jobs[k++];
+    try{const r=await rom(j.m[2],sl);if(r)res[j.i]=j.m[1]+r;else fail++}
+    catch(e){fail++;if(!first)first=e.message}
+    done++;btn.textContent='🌐 '+done+'/'+jobs.length;rst.textContent='Romanizing '+done+' / '+jobs.length+' lines…';
+    if(done%5===0)paint()}};
+  await Promise.all([worker(),worker(),worker(),worker()]);
+  paint();window.ROMBASE=res.slice();btn.disabled=false;btn.textContent=lab;busy=false;window.__romBusy=false;
+  if(fail===jobs.length)rst.textContent='Online romanize failed'+(first?' ('+first+')':'')+'. The browser may have blocked the request (CORS). Tick \"Retry via proxy\" in the Find tab and try again, or paste Roman lyrics and apply timestamps.';
+  else rst.textContent='Done'+(sl!=='auto'?' ('+langName(sl)+')':'')+': '+(jobs.length-fail)+' lines romanized'+(fail?', '+fail+' failed (original kept)':'')+'. Spelling is an automatic guess, so give it a quick review and edit if needed.';
+  if($('rin').value.trim()&&window.smartMerge)window.smartMerge();
+};
+})();
+<\/script>
+<script>
+(function(){
+const $=id=>document.getElementById(id),TS=/^(\[\d+:\d+(?:[.:]\d+)?\]\s*)(.*)$/;
+window.ROMBASE=null;
+// sound-alike folding so "Birsiyau holā" ≈ "birisyeu hola"
+const fold=s=>String(s).replace(/ß/g,'ss').replace(/[øœ]/gi,'o').replace(/æ/gi,'a').replace(/[łŁ]/g,'l').replace(/[đðĐ]/g,'d').replace(/þ/gi,'t').replace(/ı/g,'i').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+ .replace(/sh/g,'s').replace(/chh?/g,'c').replace(/([bdgjkpt])h/g,'$1').replace(/[^a-z]/g,'')
+ .replace(/[wv]/g,'b').replace(/f/g,'p').replace(/y/g,'i').replace(/z/g,'j').replace(/q/g,'k')
+ .replace(/e/g,'i').replace(/o/g,'u').replace(/(.)\1+/g,'$1');
+const known=t=>{const L=String(t).match(/\p{L}/gu)||[];return L.length>0&&L.filter(c=>/[A-Za-z\u00C0-\u024F\u1E00-\u1EFF]/.test(c)).length/L.length>.8};
+const FAC=[[/[\u4E00-\u9FFF\u3400-\u4DBF]/,2.6],[/[\u3040-\u30FF]/,1.8],[/[\uAC00-\uD7AF]/,2.4],[/[\u0400-\u04FF]/,1.1]];
+const estLen=t=>{let e=0;for(const c of String(t)){if(!/[\p{L}\p{M}]/u.test(c))continue;let f=1;for(const [re,v] of FAC)if(re.test(c)){f=v;break}e+=f}return Math.max(e,2)};
+const words=t=>String(t).trim().split(/\s+/).filter(Boolean);
+let r0=new Int32Array(400),r1=new Int32Array(400);
+function lev(a,b){const n=a.length,m=b.length;if(!n)return m;if(!m)return n;
+  if(m+1>r0.length){r0=new Int32Array(m+50);r1=new Int32Array(m+50)}
+  let p=r0,c=r1;for(let j=0;j<=m;j++)p[j]=j;
+  for(let i=1;i<=n;i++){c[0]=i;const ai=a.charCodeAt(i-1);
+    for(let j=1;j<=m;j++){const x=p[j-1]+(ai===b.charCodeAt(j-1)?0:1),y=p[j]+1,z=c[j-1]+1;c[j]=x<y?(x<z?x:z):(y<z?y:z)}
+    const t=p;p=c;c=t}
+  return p[m]}
+// Split the pasted word stream into one chunk per timed line (best monotonic fit).
+// A pasted line may cover two timed lines or the other way round.
+function match(T,U){
+  const n=T.length,w=[],ls=[],le=[];
+  U.forEach(l=>{const ws=words(l);ws.forEach((x,i)=>{w.push(x);ls.push(i===0);le.push(i===ws.length-1)})});
+  const m=w.length,wf=w.map(fold),tf=T.map(t=>known(t)?fold(t):null),tn=T.map(t=>words(t).length),te=T.map(estLen);
+  const NEG=-1e9,f=[],bk=[];for(let i=0;i<=n;i++){f.push(new Float64Array(m+1).fill(NEG));bk.push(new Int16Array(m+1).fill(-2))}
+  const skip=j=>0.5*wf[j].length+0.5;
+  f[0][0]=0;for(let j=1;j<=m;j++){f[0][j]=f[0][j-1]-skip(j-1);bk[0][j]=-1}
+  const band=0.35*m+20;
+  for(let i=1;i<=n;i++){const a=tf[i-1],maxc=Math.min(m,Math.max(tn[i-1]*2+3,Math.ceil((a!==null?a.length:te[i-1])/2)+2)),mid=i*m/n;
+    for(let j=0;j<=m;j++){
+      if(Math.abs(j-mid)>band)continue;
+      let best=NEG,from=-2;
+      if(j>0&&f[i][j-1]>NEG){best=f[i][j-1]-skip(j-1);from=-1}
+      let b='';
+      for(let k=j;k>=Math.max(0,j-maxc);k--){
+        if(k<j)b=wf[k]+b;
+        if(f[i-1][k]<=NEG)continue;
+        const cw=j-k;let sc;
+        if(a!==null){sc=cw?((a.length+b.length)/2-lev(a,b)):-a.length*.5-2}
+        else{const est=te[i-1];sc=cw?est*(.6-.5*Math.min(1.2,Math.abs(est-b.length)/est)):-est*.5}
+        if(cw){if(ls[k])sc+=2;if(le[j-1])sc+=2}
+        const v=f[i-1][k]+sc;if(v>best){best=v;from=k}}
+      f[i][j]=best;bk[i][j]=from}}
+  const ch=new Array(n).fill(null);let i=n,j=m,unused=0;
+  if(f[n][m]<=NEG){return{ch,unused:m}}
+  while(i>0){const k=bk[i][j];if(k===-1){j--;unused++;continue}if(k<0){break}ch[i-1]=[k,j];i--;j=k}
+  unused+=j;
+  return{ch,unused,w,wf}}
+window._match=match;
+
+function merge(){
+  if(window.__romBusy)return;
+  const rin=$('rin'),rout=$('rout'),rst=$('rst'),L=$('cout').value.split('\n');
+  const U=rin.value.split('\n').map(x=>x.trim()).filter(Boolean).filter(x=>!lyIsTag(x)).map(lyNoTag).filter(Boolean);
+  const base=window.ROMBASE&&window.ROMBASE.length===L.length?window.ROMBASE:L;
+  if(!L.join('').trim()){rst.textContent='Convert first (the output is empty).';return}
+  if(!U.length){rout.value=base.join('\n');rst.textContent='';return}
+  const idx=[],T=[];
+  L.forEach((l,i)=>{const m=l.match(TS);if(m&&m[2].trim()){const bm=(base[i]||'').match(TS);idx.push(i);T.push(bm?bm[2]:m[2])}});
+  if(!T.length){rst.textContent='No timed lines found.';return}
+  const {ch,unused,w,wf}=match(T,U);
+  const out=[...base];let ok=0;const kept=[];
+  idx.forEach((li,t)=>{
+    const m=L[li].match(TS),c=ch[t];
+    let take=false;
+    if(c&&c[1]>c[0]){
+      const chunk=w.slice(c[0],c[1]).join(' ');
+      const b=wf.slice(c[0],c[1]).join('');
+      if(!known(T[t])){const e=estLen(T[t]);take=b.length>0&&b.length/e>.35&&b.length/e<2.8}
+      else{const a=fold(T[t]),sim=1-lev(a,b)/Math.max(a.length,b.length,1),r=b.length/Math.max(a.length,1);
+        take=sim>=.3||(Math.abs(words(T[t]).length-(c[1]-c[0]))<=1&&r>.5&&r<2)}
+      if(take){out[li]=(m[1]+chunk).trimEnd();ok++}}
+    if(!take){const bm=(base[li]||'').match(TS);out[li]=(m[1]+(bm?bm[2]:m[2])).trimEnd();kept.push(t+1)}});
+  const man=window.ROMMAN||{};
+  rout.value=out.join('\n');
+  if(Object.keys(man).length){const o2=out.slice();for(const k in man){if(+k<o2.length)o2[+k]=man[k]}window.__nativeSet.call(rout,o2.join('\n'))}
+  const chips=kept.slice(0,12).map(n=>'<span class="ln'+((idx[n-1]) in man?' fixed':'')+'" role="button" tabindex="0" data-n="'+n+'" data-li="'+idx[n-1]+'" title="Jump to this line, then edit it">'+((idx[n-1]) in man?'\u2713 ':'')+'line '+n+'</span>').join(' ');
+  rst.innerHTML='Auto-match: '+ok+' / '+T.length+' lines replaced with your lyrics'+
+   (kept.length?'. No match (original kept): '+chips+(kept.length>12?' …':''):'')+
+   (unused>0?'. '+unused+' of your words were not used':'')+'.';
+}
+(()=>{const ro=$('rout'),d=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');window.__nativeSet=d.set;window.ROMMAN={};window.ROMAUTO=[];
+ Object.defineProperty(ro,'value',{configurable:true,get(){return d.get.call(this)},set(v){d.set.call(this,v);window.ROMAUTO=String(v).split('\n')}});
+ /* the user may edit any line of the result; remember those edits so re-matching never wipes them */
+ ro.addEventListener('input',e=>{if(!e.isTrusted)return;const ls=d.get.call(ro).split('\n'),au=window.ROMAUTO;if(ls.length!==au.length)return;
+  const man={};ls.forEach((l,i)=>{if(l!==au[i])man[i]=l});window.ROMMAN=man;
+  document.querySelectorAll('#rst .ln').forEach(b=>{const f=(+b.dataset.li) in man;b.classList.toggle('fixed',f);b.textContent=(f?'\u2713 ':'')+'line '+b.dataset.n});
+  $('rst').dispatchEvent(new Event('repaint'))});
+ ['ronline','rauto','rapply','rclear'].forEach(id=>$(id).addEventListener('click',()=>{window.ROMMAN={}},true));
+})();
+(()=>{
+ /* Keep the Romanized LRC glued to the timed lyrics: when times move, a line is split/joined or a length changes, the roman text follows */
+ const out=$('cout'),ro=$('rout'),dv=Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value');
+ const W=x=>x.split(/\s+/).filter(Boolean),K=x=>x.replace(/[^\p{L}\p{N}\p{M}]+/gu,'').toLowerCase();
+ const rl=t=>{try{return typeof romLine==='function'?romLine(t):t}catch(e){return t}};
+ const units=ls=>{const u=[];ls.forEach((l,i)=>{const m=l.match(TS);if(m&&K(m[2]))u.push({i,p:m[1],t:m[2].trim(),k:K(m[2])})});return u};
+ const txt=(arr,i)=>{const m=(arr[i]||'').match(TS);return m?m[2].trim():(arr[i]||'').trim()};
+ let snap=dv.get.call(out).split('\n'),queued=false;
+ function resync(){
+  const nl=dv.get.call(out).split('\n'),ol=snap;snap=nl;
+  if(!ro.value.trim()||ol.join('\n')===nl.join('\n'))return;
+  const rin=$('rin'),orl=dv.get.call(ro).split('\n'),hasBase=Array.isArray(window.ROMBASE)&&window.ROMBASE.length===ol.length;
+  const mergeNow=()=>{if(rin.value.trim()&&window.smartMerge){window.smartMerge();return true}return false};
+  if(orl.length!==ol.length){mergeNow();return}
+  const O=units(ol),N=units(nl),n=O.length,m=N.length;
+  const dp=Array.from({length:n+1},()=>new Int32Array(m+1));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)dp[i][j]=O[i].k===N[j].k?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  const pairs=[];{let i=0,j=0;while(i<n&&j<m){if(O[i].k===N[j].k){pairs.push([i,j]);i++;j++}else if(dp[i+1][j]>=dp[i][j+1])i++;else j++}}
+  const resR=new Array(m).fill(null),resB=new Array(m).fill(null),aligned=new Array(m).fill(-1),gaps=[];let po=0,pn=0;
+  [...pairs,[n,m]].forEach(([oi,nj])=>{gaps.push([po,oi,pn,nj]);if(oi<n){aligned[nj]=oi;resR[nj]=txt(orl,O[oi].i);if(hasBase)resB[nj]=txt(window.ROMBASE,O[oi].i)}po=oi+1;pn=nj+1});
+  let changed=0;
+  gaps.forEach(([o0,o1,n0,n1])=>{
+   if(n1<=n0)return;
+   const go=O.slice(o0,o1),gn=N.slice(n0,n1),sw=new Set(go.flatMap(u=>W(u.t).map(K))),nw=gn.flatMap(u=>W(u.t).map(K));
+   const similar=go.length&&nw.length&&nw.filter(w=>sw.has(w)).length/Math.max(nw.length,sw.size)>=.6;
+   /* same words, different breaks: share the roman words out over the new lines by their length */
+   const dist=get=>{const R=W(go.map(get).join(' ')),cs=gn.map(u=>W(u.t).length||1),tot=cs.reduce((a,b)=>a+b,0);let cum=0,prev=0;return gn.map((u,x)=>{cum+=cs[x];const cut=x===gn.length-1?R.length:Math.round(R.length*cum/tot);const r=R.slice(prev,cut).join(' ');prev=cut;return r})};
+   if(similar){const r=dist(u=>txt(orl,u.i));gn.forEach((u,x)=>resR[n0+x]=r[x]);if(hasBase){const b=dist(u=>txt(window.ROMBASE,u.i));gn.forEach((u,x)=>resB[n0+x]=b[x])}}
+   else gn.forEach((u,x)=>{changed++;const r=rl(u.t);resR[n0+x]=r;if(hasBase)resB[n0+x]=r});
+  });
+  const rebuild=res=>{const o=nl.slice();N.forEach((u,j)=>{if(res[j]!=null)o[u.i]=(u.p+res[j]).trimEnd()});return o};
+  window.ROMBASE=hasBase?rebuild(resB):null;
+  const oldMan=window.ROMMAN||{},o2n={},nm={};aligned.forEach((oi,j)=>{if(oi>=0)o2n[O[oi].i]=N[j]});
+  for(const k in oldMan){const u=o2n[k];if(u)nm[u.i]=u.p+txt([oldMan[k]],0)}
+  window.ROMMAN=nm;
+  const merged=mergeNow();
+  if(!merged){ro.value=rebuild(resR).join('\n');
+   $('rst').textContent=changed?'Heads up: '+changed+' changed line'+(changed>1?'s were':' was')+' romanized offline (approximate). Please check '+(changed>1?'them':'it')+' or press Online romanize.':'Done: times and line breaks updated to match the timed lyrics.'}
+ }
+ Object.defineProperty(out,'value',{configurable:true,get(){return dv.get.call(this)},set(v){dv.set.call(this,v);if(!queued){queued=true;Promise.resolve().then(()=>{queued=false;try{resync()}catch(e){console.error(e)}})}}});
+})();
+(()=>{const r=$('rst'),jump=b=>{const li=+b.dataset.li,ta=$('rout'),ls=ta.value.split('\n');if(!ls[li]&&ls[li]!=='')return;let a=0;for(let i=0;i<li;i++)a+=ls[i].length+1;ta.focus();ta.setSelectionRange(a,a+ls[li].length);const lh=parseFloat(getComputedStyle(ta).lineHeight)||22;ta.scrollTop=Math.max(0,li*lh-ta.clientHeight/2)};
+ r.addEventListener('click',e=>{const b=e.target.closest('.ln');if(b)jump(b)});
+ r.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const b=e.target.closest('.ln');if(b){e.preventDefault();jump(b)}});
+ /* colour the status box by what it says: red = needs attention, green = all good */
+ const BAD=/failed|No match|not used|Heads up|do not match|No timed|Nothing to send|Convert first|No non-Latin|cannot handle/i,OK=/^(Done|Auto-match|Auto-romanize done|Quick romanize done|Copied)/i;
+ const paint=()=>{let t=r.textContent;const ps=[...r.querySelectorAll('.ln')];if(ps.length&&ps.every(x=>x.classList.contains('fixed')))t=t.replace(/No match \(original kept\)/i,'');const bad=BAD.test(t);r.classList.toggle('bad',bad);r.classList.toggle('ok',!bad&&OK.test(r.textContent))};r.addEventListener('repaint',paint);
+ new MutationObserver(paint).observe(r,{childList:true,characterData:true,subtree:true});paint()})();
+window.smartMerge=merge;
+let tm;$('rin').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(merge,350)});
+})();
+<\/script>
+<script>
+(function(){
+const $=id=>document.getElementById(id),TS=/^(\[\d+:\d+(?:[.:]\d+)?\]\s*)(.*)$/;
+const mapOf=s=>{const o={};s.split(',').forEach(p=>{const i=p.indexOf(':');o[p.slice(0,i)]=p.slice(i+1)});return o};
+const place=(c,r,off,str)=>{const p=off>0?str[off-1]:'';return(c!==c.toLowerCase()&&!(p&&p!==p.toLowerCase()))?r.charAt(0).toUpperCase()+r.slice(1):r};
+// Cyrillic (Russian, Ukrainian, Serbian, Bulgarian…)
+const CY=mapOf('а:a,б:b,в:v,г:g,д:d,е:e,ё:yo,ж:zh,з:z,и:i,й:y,к:k,л:l,м:m,н:n,о:o,п:p,р:r,с:s,т:t,у:u,ф:f,х:kh,ц:ts,ч:ch,ш:sh,щ:shch,ъ:,ы:y,ь:,э:e,ю:yu,я:ya,і:i,ї:yi,є:ye,ґ:g,ј:j,љ:lj,њ:nj,ћ:c,ђ:dj,џ:dz,ў:u');
+const cy=s=>s.replace(/[\u0400-\u04FF]/g,(c,o,t)=>{const r=CY[c.toLowerCase()];return r===undefined?c:place(c,r,o,t)});
+// Greek
+const GR=mapOf('α:a,β:v,γ:g,δ:d,ε:e,ζ:z,η:i,θ:th,ι:i,κ:k,λ:l,μ:m,ν:n,ξ:x,ο:o,π:p,ρ:r,σ:s,ς:s,τ:t,υ:y,φ:f,χ:ch,ψ:ps,ω:o');
+const gr=s=>s.replace(/[\u0370-\u03FF\u1F00-\u1FFF]+/g,run=>{
+  let t=run.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ου/gi,'ou').replace(/μπ/gi,'b').replace(/ντ/gi,'d').replace(/γκ/gi,'g').replace(/αι/gi,'e').replace(/ει|οι/gi,'i');
+  return t.replace(/[\u0370-\u03FF]/g,(c,o,u)=>{const r=GR[c.toLowerCase()];return r===undefined?c:place(c,r,o,u)})});
+// Korean (Revised Romanization, syllable by syllable)
+const HL=['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+const HV=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+const HT=['','k','kk','ks','n','nj','nh','t','l','lk','lm','lp','ls','lt','lp','lh','m','p','ps','t','t','ng','t','t','k','t','p','h'];
+const hg=s=>s.replace(/[\uAC00-\uD7A3]/g,c=>{const x=c.charCodeAt(0)-0xAC00,t=x%28,v=Math.floor(x/28)%21,l=Math.floor(x/588);return HL[l]+HV[v]+HT[t]});
+// Japanese kana (Hepburn)
+const KR={};'あa いi うu えe おo かka きki くku けke こko さsa しshi すsu せse そso たta ちchi つtsu てte とto なna にni ぬnu ねne のno はha ひhi ふfu へhe ほho まma みmi むmu めme もmo やya ゆyu よyo らra りri るru れre ろro わwa をo んn がga ぎgi ぐgu げge ごgo ざza じji ずzu ぜze ぞzo だda ぢji づzu でde どdo ばba びbi ぶbu べbe ぼbo ぱpa ぴpi ぷpu ぺpe ぽpo ゔvu ぁa ぃi ぅu ぇe ぉo ゎwa'.split(' ').forEach(x=>KR[x[0]]=x.slice(1));
+const SM={'ゃ':'a','ゅ':'u','ょ':'o'};
+const kana=s=>s.replace(/[\u30A1-\u30F6]/g,c=>String.fromCharCode(c.charCodeAt(0)-96)).replace(/[\u3041-\u3096\u30FC]+/g,run=>{
+  const a=[...run];let o='',i=0;
+  while(i<a.length){const c=a[i];
+    if(c==='っ'){const n=KR[a[i+1]]||'';o+=n.startsWith('ch')?'t':n.charAt(0);i++;continue}
+    if(c==='ー'){const l=o.slice(-1);o+=/[aiueo]/.test(l)?l:'';i++;continue}
+    const r=KR[c];if(r===undefined){o+=c;i++;continue}
+    const nx=a[i+1];
+    if(nx&&SM[nx]&&/i$/.test(r)){const st=r.slice(0,-1);o+=(st==='sh'||st==='ch'||st==='j'?st:st+'y')+SM[nx];i+=2;continue}
+    o+=r;i++}
+  return o});
+// Indic scripts share one layout (Devanagari, Bengali, Gurmukhi, Gujarati, Oriya, Tamil, Telugu, Kannada, Malayalam)
+const BASES=[0x900,0x980,0xA00,0xA80,0xB00,0xB80,0xC00,0xC80,0xD00],CON={};
+'k kh g gh ng ch chh j jh ny t th d dh n t th d dh n n p ph b bh m y r r l l l v sh sh s h'.split(' ').forEach((r,i)=>CON[0x15+i]=r);
+Object.assign(CON,{0x58:'q',0x59:'kh',0x5A:'gh',0x5B:'z',0x5C:'r',0x5D:'rh',0x5E:'f',0x5F:'y'});
+const IV={4:'a',5:'a',6:'aa',7:'i',8:'i',9:'u',10:'u',11:'ri',12:'li',13:'e',14:'e',15:'e',16:'ai',17:'o',18:'o',19:'o',20:'au'};
+const MAT={0x3E:'aa',0x3F:'i',0x40:'i',0x41:'u',0x42:'u',0x43:'ri',0x44:'ri',0x45:'e',0x46:'e',0x47:'e',0x48:'ai',0x49:'o',0x4A:'o',0x4B:'o',0x4C:'au'};
+const SIGN={1:'n',2:'n',3:'h'},NK={k:'q',j:'z',ph:'f',d:'r',dh:'rh'};
+function brah(run){
+  let o='',pend=false;const flush=k=>{if(pend&&k)o+='a';pend=false};
+  for(const ch of run){const cp=ch.codePointAt(0);
+    if(cp===0x200C||cp===0x200D)continue;
+    const base=BASES.find(b=>cp>=b&&cp<b+128),off=cp-base;
+    if(CON[off]!==undefined){flush(true);o+=(base===0xB80&&off===0x34)?'zh':CON[off];pend=true;continue}
+    if(off===0x3C){if(pend)o=o.replace(/(dh|ph|[kjd])$/,m=>NK[m]||m);continue}
+    if(off===0x4D){pend=false;continue}
+    if(MAT[off]!==undefined){pend=false;o+=MAT[off];continue}
+    if(SIGN[off]!==undefined){flush(true);o+=SIGN[off];continue}
+    if(IV[off]!==undefined){flush(true);o+=IV[off];continue}
+    if(off===0x50){flush(true);o+='om';continue}
+    if(off===0x64||off===0x65){flush(false);o+='.';continue}
+    if(off>=0x66&&off<=0x6F){flush(false);o+=off-0x66;continue}
+    flush(true)}
+  flush(false);return o}
+const trs=s=>kana(hg(gr(cy(s.replace(/[\u0900-\u0D7F\u200C\u200D]+/g,brah)))));
+window._trs=trs;
+// Quick button: Urdu/Arabic (old routine) first, then every other script handled above
+const old=$('rauto').onclick;
+$('rauto').onclick=()=>{
+  if(old)old();
+  const rout=$('rout'),rst=$('rst');if(!rout.value.trim())return;
+  let total=0,left=0;
+  rout.value=rout.value.split('\n').map(l=>{const m=l.match(TS);if(!m||!m[2].trim())return l;total++;
+    const r=trs(m[2]);if(/[^\x00-\u024F\u1E00-\u1EFF\s\p{P}\p{S}]/u.test(r))left++;return(m[1]+r).trimEnd()}).join('\n');
+  window.ROMBASE=rout.value.split('\n');
+  rst.textContent='Quick romanize done (approximate).'+(left?' '+left+' line(s) use a script like Chinese, Thai or Hebrew that Quick cannot handle offline. Use Online romanize for those.':'')+' Online romanize gives better results.';
+  if($('rin').value.trim()&&window.smartMerge)window.smartMerge();
+};
+})();
+<\/script>
+<script>
+(function(){const r=document.getElementById('rin');
+document.getElementById('rclear').onclick=()=>{r.value='';r.dispatchEvent(new Event('input'));r.focus()}})();
+<\/script>
+</body>
+</html></script>
+<script>
+/* Lyrics Toolkit: opens from the Find lyrics button, follows the same accent + light/dark */
+(()=>{const ov=document.getElementById('tkOv'),fr=document.getElementById('tkFr'),btn=document.getElementById('findLy'),R=document.documentElement;
+ const theme=()=>({tk:'theme',acc:R.dataset.acc||'rose',ui:R.dataset.ui||'dark'});
+ const push=()=>{try{fr.contentWindow.postMessage(theme(),'*')}catch(e){}};
+ const fill=()=>{try{const m=meta();fr.contentWindow.postMessage({tk:'fill',song:m.song||'',artist:m.artist||''},'*')}catch(e){}};
+ const open=()=>{if(!fr.dataset.ready){const t=theme();fr.dataset.ready=1;fr.srcdoc=document.getElementById('tkSrc').textContent.replace(/<\\\/script/g,'<\/script').replace('<html lang="en">','<html lang="en" data-acc="'+t.acc+'" data-ui="'+t.ui+'">')}
+  if(!ov.classList.contains('open'))try{history.pushState({tk:1},'')}catch(e){}ov.classList.add('open');ov.setAttribute('aria-hidden','false');document.body.classList.add('tkOpen');push();fill();setTimeout(()=>{try{fr.contentWindow.focus()}catch(e){}},60)};
+ const hide=()=>{ov.classList.remove('open');ov.setAttribute('aria-hidden','true');document.body.classList.remove('tkOpen');try{btn.focus()}catch(e){}};
+ const close=()=>{hide();if(history.state&&history.state.tk){try{history.back()}catch(e){}}};
+ addEventListener('popstate',()=>{if(ov.classList.contains('open'))hide()});
+ btn.addEventListener('click',open);
+ fr.addEventListener('load',()=>{push();fill()});
+ new MutationObserver(push).observe(R,{attributes:true,attributeFilter:['data-acc','data-ui']});
+ const send=txt=>{try{if(S.mode==='audio')setMode('lyrics')}catch(e){}
+ const ta=document.getElementById('lt');ta.value=txt;ta.dispatchEvent(new Event('input',{bubbles:true}));close();
+ setTimeout(()=>{try{ta.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}ta.classList.remove('tkFlash');void ta.offsetWidth;ta.classList.add('tkFlash');setTimeout(()=>ta.classList.remove('tkFlash'),1500)},280)};
+ addEventListener('message',e=>{if(e.source!==fr.contentWindow||!e.data)return;if(e.data.tk==='close')close();else if(e.data.tk==='send'&&typeof e.data.text==='string')send(e.data.text)});
+ addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open'))close()});
+})();
+</script>
+</body></html>
