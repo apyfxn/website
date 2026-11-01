@@ -664,7 +664,7 @@ body:not(.audioMode) .auOnly{display:none!important}
   <button class="b" id="tlMerge" title="Join with the next lyric">Merge ▸</button>
   <button class="b" id="tlAdd" title="New lyric at the playhead">+ Add</button>
   <button class="b" id="tlDel" title="Delete the selected lyric (Del)">Delete</button>
-  <button class="b" id="tlDup" title="Duplicate the selected lyric right after it (Shift + D)">⎘ Duplicate</button>
+  <button class="b" id="tlDup" title="Duplicate the selected lyric right after it (Ctrl/⌘ + D)">⎘ Duplicate</button>
   <button class="b" id="tlCopy" title="Copy the selected lyric (Ctrl/⌘ C)">⧉ Copy</button>
   <button class="b" id="tlPaste" title="Paste at the playhead (Ctrl/⌘ V)">Paste</button><i class="sep"></i>
   <button class="b" id="tlIn" title="Start this lyric at the playhead (I)">⟦ Start here</button>
@@ -708,7 +708,7 @@ body:not(.audioMode) .auOnly{display:none!important}
   <section><h3>Audio section</h3><p>Switch to <b>Audio</b> at the top of the left panel to make a video with only the song. A player box appears in the middle of the frame with the cover photo, song name, progress bar and buttons. Audio and Lyrics each keep their own settings, so changing one never changes the other.</p></section>
   <section><h3>Start a project</h3><p>Upload a song, then add lyrics with timestamps such as <code>[00:03.64] First line</code>. Untimestamped lines continue beneath the previous lyric.</p><p>Use the canvas to preview the result. The play button and scrubber control playback.</p></section>
   <section><h3>Time your lyrics</h3><p>Choose <b>Edit timeline</b> to open the editor. Click a lyric to select it and move the playhead. Drag a block to move it, or drag its edges to trim.</p><p>To split a lyric, place the playhead at the break, click in the lyric text where it should divide, then choose <b>Split</b>. Use <b>Merge</b>, <b>Duplicate</b>, <b>Start here</b>, and <b>End here</b> for other timing edits.</p></section>
-  <section><h3>Timeline shortcuts</h3><ul><li><kbd>Space</kbd> Play or pause</li><li><kbd>S</kbd> Split at the playhead and text cursor</li><li><kbd>I</kbd> Set selected lyric start to playhead</li><li><kbd>O</kbd> Set selected lyric end to playhead</li><li><kbd>←</kbd> / <kbd>→</kbd> Nudge timing; hold <kbd>Shift</kbd> for a larger step</li><li><kbd>Delete</kbd> Remove the selected lyric</li><li><kbd>Ctrl/⌘ Z</kbd> Undo; <kbd>Ctrl/⌘ Shift Z</kbd> redo</li><li><kbd>Shift D</kbd> Duplicate the selected lyric</li><li><kbd>Alt</kbd> + scroll Zoom the timeline</li><li><kbd>Ctrl/⌘ C</kbd> Copy and <kbd>Ctrl/⌘ V</kbd> paste at the playhead</li></ul><p>In the lyric text box, <kbd>Enter</kbd> starts a new line and <kbd>Ctrl/⌘ Enter</kbd> finishes editing.</p></section>
+  <section><h3>Timeline shortcuts</h3><ul><li><kbd>Space</kbd> Play or pause</li><li><kbd>S</kbd> Split at the playhead and text cursor</li><li><kbd>I</kbd> Set selected lyric start to playhead</li><li><kbd>O</kbd> Set selected lyric end to playhead</li><li><kbd>←</kbd> / <kbd>→</kbd> Nudge timing; hold <kbd>Shift</kbd> for a larger step</li><li><kbd>Delete</kbd> Remove the selected lyric</li><li><kbd>Ctrl/⌘ Z</kbd> Undo; <kbd>Ctrl/⌘ Shift Z</kbd> redo</li><li><kbd>Ctrl/⌘ D</kbd> Duplicate the selected lyric</li><li><kbd>Alt</kbd> + scroll Zoom the timeline in and out</li><li><kbd>Shift</kbd> + scroll Move the timeline back and forth</li><li><kbd>Ctrl/⌘ C</kbd> Copy and <kbd>Ctrl/⌘ V</kbd> paste at the playhead</li></ul><p>In the lyric text box, <kbd>Enter</kbd> starts a new line and <kbd>Ctrl/⌘ Enter</kbd> finishes editing.</p></section>
   <section><h3>Style your video</h3><p>Choose a font, text size, animation, reveal mode, capitals, shadow, and text color. Add a background image and optional logo. Drag the preview to reposition an unlocked background; use the zoom and position controls to adjust it.</p></section>
   <section><h3>Export</h3><p>Select the resolution and frame rate, then choose <b>Export MP4</b>. Higher resolutions and frame rates take longer and create larger files.</p></section>
  </div>
@@ -717,7 +717,27 @@ body:not(.audioMode) .auOnly{display:none!important}
 const $=id=>document.getElementById(id);
 $('helpOpen').onclick=()=>$('helpDialog').showModal();$('helpClose').onclick=()=>$('helpDialog').close();$('helpDialog').addEventListener('click',e=>{if(e.target===$('helpDialog'))$('helpDialog').close()});
 const asideCards=[...document.querySelectorAll('aside .card')];asideCards.forEach((card,i)=>{if(!i)return;const h=card.querySelector('h2');card.classList.add('sideCollapsed');h.setAttribute('role','button');h.tabIndex=0;h.setAttribute('aria-expanded','false');const toggle=()=>{const open=card.classList.contains('sideCollapsed');asideCards.slice(1).forEach(other=>{if(other!==card){other.classList.add('sideCollapsed');other.querySelector('h2').setAttribute('aria-expanded','false')}});card.classList.toggle('sideCollapsed',!open);h.setAttribute('aria-expanded',String(open))};h.addEventListener('click',toggle);h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}})});const outputCard=document.getElementById('exp').closest('.card'),shapeRow=document.getElementById('sAsp').closest('.row'),infoButton=document.getElementById('helpOpen');shapeRow.classList.add('shapeControl');outputCard.insertBefore(shapeRow,outputCard.firstChild);outputCard.appendChild(infoButton);
-const S={bgLock:false,bgZ:1,bgX:0,bgY:0,buf:null,dur:0,lines:[],bg:null,logo:null,logoVid:false,asp:'16:9',res:2160,fps:60,up:1,aud:new Audio(),playing:false};
+/* Sample-accurate preview player (Web Audio). Replaces <audio>, whose seek on MP3/VBR files is imprecise
+   and made playback start from a different place than the playhead after timeline edits. Same API as Audio. */
+function makePlayer(){
+ let c=null,src=null,t0=0,p0=0,pl=false;
+ const stopSrc=()=>{if(src){const o=src;src=null;o.onended=null;try{o.stop()}catch(e){}try{o.disconnect()}catch(e){}}};
+ const begin=v=>{stopSrc();if(!S.buf)return;const d=S.buf.duration;
+  if(v>=d-.005){p0=d;pl=false;return}
+  const x=P.ctx(),o=x.createBufferSource();o.buffer=S.buf;o.connect(x.destination);
+  o.onended=()=>{if(src!==o)return;src=null;pl=false;p0=S.buf.duration;if(P.onended)P.onended()};
+  p0=v;t0=x.currentTime;o.start(0,v);src=o;pl=true};
+ const P={onended:null,
+  ctx(){if(!c)c=new (window.AudioContext||window.webkitAudioContext)();return c},
+  get paused(){return !pl},
+  get duration(){return S.buf?S.buf.duration:0},
+  get currentTime(){if(!pl)return p0;const d=S.buf?S.buf.duration:0,lat=c.outputLatency||0;return Math.max(p0,Math.min(d,p0+(c.currentTime-t0)-lat))},
+  set currentTime(v){v=+v;if(!isFinite(v))v=0;const d=S.buf?S.buf.duration:0;v=Math.max(0,d?Math.min(v,d):v);if(pl)begin(v);else p0=v},
+  play(){if(!S.buf)return Promise.resolve();const x=P.ctx();if(x.state==='suspended')x.resume();begin(p0>=S.buf.duration-.02?0:p0);return Promise.resolve()},
+  pause(){if(!pl)return;p0=P.currentTime;stopSrc();pl=false},
+  reset(){stopSrc();pl=false;p0=0}};
+ return P}
+const S={bgLock:false,bgZ:1,bgX:0,bgY:0,buf:null,dur:0,lines:[],bg:null,logo:null,logoVid:false,asp:'16:9',res:2160,fps:60,up:1,aud:makePlayer(),playing:false};
 function seg(id,key,num){const el=$(id);el.onclick=e=>{const b=e.target.closest('button');if(!b)return;el.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');S[key]=num?+b.dataset.v:b.dataset.v;if(key=='asp'||key=='up')sizePv();draw()}}
 seg('sRes','res',1);seg('sFps','fps',1);seg('sAsp','asp');seg('sUp','up',1);
 // lyrics
@@ -728,8 +748,8 @@ function lyr(){S.lines=parse($('lt').value);updMeta();for(const k in cache)delet
 $('lt').oninput=lyr;
 $('il').onchange=async e=>{const f=e.target.files[0];if(!f)return;S.lrcName=f.name;$('lt').value=await f.text();$('fl').classList.add('ok');$('fl').querySelector('small').textContent=f.name;lyr()};
 $('ia').onchange=async e=>{const f=e.target.files[0];if(!f)return;S.audFile=f;$('fan').textContent='Reading '+f.name+'…';
- S.aud.src=URL.createObjectURL(f);const ab=await f.arrayBuffer();S.audName=f.name;S.swap=false;if(S.th){S.th.song=S.th.artist=null}try{S.id3=readId3(ab)}catch(x){S.id3=null}updMeta();
- try{const c=new (window.AudioContext||window.webkitAudioContext)();S.buf=await c.decodeAudioData(ab);S.dur=S.buf.duration;buildEnv();$('fa').classList.add('ok');$('fan').textContent=f.name+' ('+fmt(S.dur)+')'}
+ S.aud.reset();if(S.playing){S.playing=false;$('play').textContent='▶';if(S.logoVid)S.logo.pause()}const ab=await f.arrayBuffer();S.audName=f.name;S.swap=false;if(S.th){S.th.song=S.th.artist=null}try{S.id3=readId3(ab)}catch(x){S.id3=null}updMeta();
+ try{const c=S.aud.ctx();S.buf=await c.decodeAudioData(ab);S.dur=S.buf.duration;buildEnv();$('fa').classList.add('ok');$('fan').textContent=f.name+' ('+fmt(S.dur)+')'}
  catch(err){$('fan').textContent='Couldn’t read that audio file. Try an MP3 or WAV.'}ready();draw()};
 $('ib').onchange=e=>{const f=e.target.files[0];if(!f)return;S.bgFile=f;const i=new Image();i.onload=()=>{S.bg=i;S.bgLock=false;S.bgZ=1;S.bgX=0;S.bgY=0;$('fb').classList.add('ok');$('fbn').textContent=f.name;bgUI();draw()};i.src=URL.createObjectURL(f)};
 $('ig').onchange=e=>{const f=e.target.files[0];if(!f)return;S.logoFile=f;const u=URL.createObjectURL(f);$('fg').classList.add('ok');$('fgn').textContent=f.name;
@@ -916,8 +936,8 @@ $('bLock').onclick=()=>{S.bgLock=!S.bgLock;bgUI()};
  pv.addEventListener('pointerup',up);pv.addEventListener('pointercancel',up);
  pv.addEventListener('wheel',e=>{if(!S.bg||S.bgLock)return;e.preventDefault();const[px,py]=rel(e);bgZoomAt(S.bgZ*Math.exp(-e.deltaY*.0015),px,py)},{passive:false});
 })();
-function tick(){draw();if(S.dur)$('seek').value=1000*(S.clk?S.clk.t+(performance.now()/1000-S.clk.n):S.aud.currentTime)/S.dur;if(S.playing)requestAnimationFrame(tick)}
-$('play').onclick=()=>{if(!S.dur)return;if(S.playing){S.aud.pause();S.playing=false;$('play').textContent='▶';if(S.logoVid)S.logo.pause()}else{S.aud.play();S.playing=true;$('play').textContent='❚❚';if(S.logoVid)S.logo.play();tick()}};
+function tick(){try{draw();if(S.dur)$('seek').value=1000*(S.clk?S.clk.t+(performance.now()/1000-S.clk.n):S.aud.currentTime)/S.dur}finally{if(S.playing)requestAnimationFrame(tick);else S.tk=0}}
+$('play').onclick=()=>{if(!S.dur)return;if(S.playing){S.aud.pause();S.playing=false;$('play').textContent='▶';if(S.logoVid)S.logo.pause()}else{S.aud.play();S.playing=true;$('play').textContent='❚❚';if(S.logoVid)S.logo.play();if(!S.tk){S.tk=1;tick()}}};
 $('seek').oninput=e=>{if(S.dur){S.aud.currentTime=S.dur*e.target.value/1000;S.clk=null;draw()}};
 S.aud.onended=()=>{S.playing=false;$('play').textContent='▶'};
 $('tc').oninput=draw;
@@ -1151,7 +1171,7 @@ function copyL(e){const l=L()[st.sel];if(!l)return false;st.clip={t:l.t,d:l.x!=n
 function pasteL(txt){let t=null,d=null;if(st.clip&&(txt==null||nv(txt)===st.clip.t)){t=st.clip.t;d=st.clip.d}else if(txt!=null&&nv(txt))t=nv(txt);if(!t)return hint('Nothing to paste yet. Select a lyric and press Ctrl/⌘ C first.');
  const T=Math.round(curT()*100)/100,a=L();if(a.some(l=>Math.abs(l.s-T)<.1))return hint('A lyric already starts here. Move the playhead to where the pasted lyric should start.');
  const nl={s:T,t};if(d!=null&&d>.1)nl.x=T+d;a.push(nl);a.sort((p,r)=>p.s-r.s);st.sel=a.indexOf(nl);commit();hint('Pasted.')}
-function dup(){const i=st.sel,a=L(),l=a[i];if(!l)return hint('Select a lyric first, then press Shift + D.');
+function dup(){const i=st.sel,a=L(),l=a[i];if(!l)return hint('Select a lyric first, then press Ctrl/⌘ + D.');
  const n=a[i+1],len=l.e-l.s,s0=Math.round(l.e*100)/100,room=n?n.s-s0:Infinity;
  if(room<.1)return hint('No empty space after this lyric. Trim its end or move the next lyric first.');
  const d=Math.min(len,room),nl={s:s0,t:l.t,x:Math.round((s0+d)*100)/100};a.splice(i+1,0,nl);st.sel=i+1;commit();hint(d<len-.005?'Duplicated and shortened to fit the gap.':'Duplicated at the same length.')}
@@ -1169,7 +1189,10 @@ eE.onchange=()=>{const a=L(),l=a[st.sel];if(!l)return;const v=pt(eE.value),n=a[s
 function zoom(p,cx){const W=box.clientWidth,c=cx==null?W/2:cx,tc=(box.scrollLeft+c)/st.pps;st.pps=Math.min(400,Math.max(2,p));q('tlZ').value=p2v(st.pps);size();box.scrollLeft=tc*st.pps-c;place();paint();ph.style.left=curT()*st.pps+'px'}
 q('tlZ').oninput=e=>zoom(v2p(+e.target.value));
 q('tlFit').onclick=()=>{zoom((box.clientWidth-24)/len());box.scrollLeft=0;paint()};
-box.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey||e.altKey){e.preventDefault();const d=e.deltaY||e.deltaX;if(!d)return;zoom(st.pps*(d<0?1.15:1/1.15),e.clientX-box.getBoundingClientRect().left)}},{passive:false});
+box.addEventListener('wheel',e=>{
+ if(e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();const d=e.deltaY||e.deltaX;if(!d)return;zoom(st.pps*(d<0?1.15:1/1.15),e.clientX-box.getBoundingClientRect().left)}
+ else if(e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();const d=e.deltaX||e.deltaY;if(d)box.scrollLeft+=d}
+},{passive:false});
 q('tlDup').onclick=dup;q('tlCopy').onclick=()=>copyL();q('tlPaste').onclick=async()=>{let x=null;try{x=await navigator.clipboard.readText()}catch(e){}pasteL(x)};q('tlSplit').onclick=split;q('tlMerge').onclick=merge;q('tlAdd').onclick=add;q('tlDel').onclick=del;q('tlIn').onclick=()=>setIn(false);q('tlOut').onclick=setOut;q('tlUn').onclick=undo;q('tlRe').onclick=redo;
 q('tlSnap').onclick=e=>{st.snap=!st.snap;e.currentTarget.classList.toggle('on',st.snap)};
 q('tlScope').onclick=e=>{st.from=!st.from;e.currentTarget.textContent=st.from?'From selected':'All lyrics'};
@@ -1181,12 +1204,21 @@ function toggle(v){st.open=v==null?!st.open:v;dock.hidden=!st.open;document.body
 document.querySelectorAll('.tlTog').forEach(b=>b.onclick=()=>toggle());q('tlX').onclick=()=>toggle(false);
 new ResizeObserver(()=>{if(!st.open)return;document.documentElement.style.setProperty('--tlh',dock.offsetHeight+'px');size();paint()}).observe(dock);
 const editing=e=>{const t=e.target;return t.isContentEditable||t.tagName=='TEXTAREA'||(t.tagName=='INPUT'&&/^(text|search|url|tel|email|number|password)$/.test(t.type))};
+const noAlt=e=>{if(st.open&&e.key==='Alt')e.preventDefault()};
+// Alt+Space: handled first (capture), whatever has focus, so Chrome/Windows never opens its menu. Plays/pauses instead.
+window.addEventListener('keydown',e=>{if(!st.open||!e.altKey||(e.key!==' '&&e.code!=='Space'))return;e.preventDefault();e.stopPropagation();if(e.repeat)return;const a=document.activeElement,tg=a?a.tagName:'';if(/^(INPUT|TEXTAREA|SELECT)$/.test(tg)&&!(tg=='INPUT'&&a.type=='range'))return;if(tg=='BUTTON'||tg=='INPUT')a.blur();q('tlPlay').click()},true);
+// Best effort: if releasing Alt hands focus to the browser toolbar, pull it back to the page.
+let altUp=0;const back=()=>{try{window.focus();if(document.activeElement&&document.activeElement!==document.body&&/^(BUTTON|A)$/.test(document.activeElement.tagName))document.activeElement.blur()}catch(x){}};
+window.addEventListener('keyup',e=>{if(st.open&&e.key==='Alt'){altUp=performance.now();setTimeout(back,0);setTimeout(back,120)}},true);
+window.addEventListener('blur',()=>{if(st.open&&performance.now()-altUp<800){setTimeout(back,0);setTimeout(back,150)}});
+window.addEventListener('keyup',e=>{if(st.open&&(e.key===' '||e.code==='Space')&&(e.altKey||st.altSp))e.preventDefault()},true);
+window.addEventListener('keydown',noAlt,true);window.addEventListener('keyup',noAlt,true);
 document.addEventListener('copy',e=>{if(!st.open||editing(e)||String(getSelection()))return;copyL(e)});
 document.addEventListener('paste',e=>{if(!st.open||editing(e))return;e.preventDefault();pasteL(e.clipboardData.getData('text/plain')||null)});
-document.addEventListener('keydown',e=>{if(!st.open)return;const tg=e.target.tagName;if(/^(INPUT|TEXTAREA|SELECT)$/.test(tg))return;const k=e.key.toLowerCase(),mod=e.metaKey||e.ctrlKey;
- if(mod&&k=='z'){e.preventDefault();e.shiftKey?redo():undo();return}if(mod&&k=='y'){e.preventDefault();redo();return}if(mod||e.altKey)return;
- if(k==' '){if(tg=='BUTTON')return;e.preventDefault();q('tlPlay').click()}
- else if(k=='d'){if(e.shiftKey){e.preventDefault();dup()}}else if(k=='s')split();else if(k=='i')setIn(true);else if(k=='o')setOut();
+document.addEventListener('keydown',e=>{if(!st.open)return;if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&e.key.toLowerCase()=='d'){e.preventDefault();if(!e.repeat)dup();return}const tg=e.target.tagName;if(/^(INPUT|TEXTAREA|SELECT)$/.test(tg))return;const k=e.key.toLowerCase(),mod=e.metaKey||e.ctrlKey;
+ if(mod&&k=='z'){e.preventDefault();e.shiftKey?redo():undo();return}if(mod&&k=='y'){e.preventDefault();redo();return}if(k==' '){if(tg=='BUTTON')return;e.preventDefault();q('tlPlay').click();return}if(mod||e.altKey)return;
+ if(false){}
+ else if(k=='s')split();else if(k=='i')setIn(true);else if(k=='o')setOut();
  else if(k=='delete'||k=='backspace'){e.preventDefault();del()}
  else if(k=='arrowleft'||k=='arrowright'){e.preventDefault();nudge((k=='arrowleft'?-1:1)*(e.shiftKey?.5:.05))}});
 return{sync,tick:ui}})();
