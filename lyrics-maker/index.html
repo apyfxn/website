@@ -677,15 +677,16 @@ body.tkOpen{overflow:hidden}
  <div class="dr">
   <button class="circ sm" id="tlPlay" aria-label="Play or pause">▶</button><span class="t" id="tlTm" style="min-width:74px">00:00.00</span><i class="sep"></i>
   <button class="b" id="tlSplit" title="Cut the selected lyric at the playhead and the text cursor (S)">✂ Split</button>
-  <button class="b" id="tlMerge" title="Join with the next lyric">Merge ▸</button>
+  <button class="b" id="tlMerge" hidden style="display:none!important" title="Join with the next lyric">Merge ▸</button>
   <button class="b" id="tlAdd" title="New lyric at the playhead">+ Add</button>
-  <button class="b" id="tlDel" title="Delete the selected lyric (Del)">Delete</button>
-  <button class="b" id="tlDup" title="Duplicate the selected lyric right after it (Ctrl/⌘ + D)">⎘ Duplicate</button>
-  <button class="b" id="tlCopy" title="Copy the selected lyric (Ctrl/⌘ C)">⧉ Copy</button>
-  <button class="b" id="tlPaste" title="Paste at the playhead (Ctrl/⌘ V)">Paste</button><i class="sep"></i>
-  <button class="b" id="tlIn" title="Start this lyric at the playhead (I)">⟦ Start here</button>
-  <button class="b" id="tlOut" title="End this lyric at the playhead (O)">End here ⟧</button><i class="sep"></i>
-  <button class="b" id="tlUn" title="Undo (Ctrl/⌘ Z)">↶ Undo</button><button class="b" id="tlRe" title="Redo (Ctrl/⌘ Shift Z)">↷ Redo</button>
+  <button class="b" id="tlAll" hidden style="display:none!important" title="Select every lyric so they can be moved together (Ctrl/⌘ A)">Select all</button>
+  <button class="b" id="tlDel" hidden style="display:none!important" title="Delete the selected lyric (Del)">Delete</button>
+  <button class="b" id="tlDup" hidden style="display:none!important" title="Duplicate the selected lyric right after it (Ctrl/⌘ + D)">⎘ Duplicate</button>
+  <button class="b" id="tlCopy" hidden style="display:none!important" title="Copy the selected lyric (Ctrl/⌘ C)">⧉ Copy</button>
+  <button class="b" id="tlPaste" hidden style="display:none!important" title="Paste at the playhead (Ctrl/⌘ V)">Paste</button><i class="sep" style="display:none"></i>
+  <button class="b" id="tlIn" hidden style="display:none!important" title="Start this lyric at the playhead (I)">⟦ Start here</button>
+  <button class="b" id="tlOut" hidden style="display:none!important" title="End this lyric at the playhead (O)">End here ⟧</button><i class="sep" style="display:none"></i>
+  <button class="b" id="tlUn" hidden style="display:none!important" title="Undo (Ctrl/⌘ Z)">↶ Undo</button><button class="b" id="tlRe" hidden style="display:none!important" title="Redo (Ctrl/⌘ Shift Z)">↷ Redo</button>
   <button class="b" id="tlX" style="margin-left:auto">Close ✕</button>
  </div>
  <div class="dr">
@@ -724,7 +725,7 @@ body.tkOpen{overflow:hidden}
   <section><h3>Audio section</h3><p>Switch to <b>Audio</b> at the top of the left panel to make a video with only the song. A player box appears in the middle of the frame with the cover photo, song name, progress bar and buttons. Audio and Lyrics each keep their own settings, so changing one never changes the other.</p></section>
   <section><h3>Start a project</h3><p>Upload a song, then add lyrics with timestamps such as <code>[00:03.64] First line</code>. Untimestamped lines continue beneath the previous lyric.</p><p>Use the canvas to preview the result. The play button and scrubber control playback.</p></section>
   <section><h3>Time your lyrics</h3><p>Choose <b>Edit timeline</b> to open the editor. Click a lyric to select it and move the playhead. Drag a block to move it, or drag its edges to trim.</p><p>To split a lyric, place the playhead at the break, click in the lyric text where it should divide, then choose <b>Split</b>. Use <b>Merge</b>, <b>Duplicate</b>, <b>Start here</b>, and <b>End here</b> for other timing edits.</p></section>
-  <section><h3>Timeline shortcuts</h3><ul><li><kbd>Space</kbd> Play or pause</li><li><kbd>S</kbd> Split at the playhead and text cursor</li><li><kbd>I</kbd> Set selected lyric start to playhead</li><li><kbd>O</kbd> Set selected lyric end to playhead</li><li><kbd>←</kbd> / <kbd>→</kbd> Nudge timing; hold <kbd>Shift</kbd> for a larger step</li><li><kbd>Delete</kbd> Remove the selected lyric</li><li><kbd>Ctrl/⌘ Z</kbd> Undo; <kbd>Ctrl/⌘ Shift Z</kbd> redo</li><li><kbd>Ctrl/⌘ D</kbd> Duplicate the selected lyric</li><li><kbd>Alt</kbd> + scroll Zoom the timeline in and out</li><li><kbd>Shift</kbd> + scroll Move the timeline back and forth</li><li><kbd>Ctrl/⌘ C</kbd> Copy and <kbd>Ctrl/⌘ V</kbd> paste at the playhead</li></ul><p>In the lyric text box, <kbd>Enter</kbd> starts a new line and <kbd>Ctrl/⌘ Enter</kbd> finishes editing.</p></section>
+  <section><h3>Timeline shortcuts</h3><ul><li><kbd>Space</kbd> Play or pause</li><li><kbd>S</kbd> Split at the playhead and text cursor</li><li><kbd>I</kbd> Set selected lyric start to playhead</li><li><kbd>O</kbd> Set selected lyric end to playhead</li><li><kbd>←</kbd> / <kbd>→</kbd> Nudge timing; hold <kbd>Shift</kbd> for a larger step</li><li><kbd>Ctrl/⌘ A</kbd> Select all lyrics; <kbd>Ctrl/⌘</kbd>/<kbd>Shift</kbd> + click adds to the selection; drag on empty timeline space to box-select; drag any selected lyric to move them all; <kbd>Esc</kbd> deselects</li><li><kbd>Delete</kbd> Remove the selected lyric(s)</li><li><kbd>Ctrl/⌘ Z</kbd> Undo; <kbd>Ctrl/⌘ Shift Z</kbd> redo</li><li><kbd>Ctrl/⌘ D</kbd> Duplicate the selected lyric</li><li><kbd>Alt</kbd> + scroll Zoom the timeline in and out</li><li><kbd>Shift</kbd> + scroll Move the timeline back and forth</li><li><kbd>Ctrl/⌘ C</kbd> Copy and <kbd>Ctrl/⌘ V</kbd> paste at the playhead</li></ul><p>In the lyric text box, <kbd>Enter</kbd> starts a new line and <kbd>Ctrl/⌘ Enter</kbd> finishes editing.</p></section>
   <section><h3>Style your video</h3><p>Choose a font, text size, animation, reveal mode, capitals, shadow, and text color. Add a background image and optional logo. Drag the preview to reposition an unlocked background; use the zoom and position controls to adjust it.</p></section>
   <section><h3>Export</h3><p>Select the resolution and frame rate, then choose <b>Export MP4</b>. Higher resolutions and frame rates take longer and create larger files.</p></section>
  </div>
@@ -1126,7 +1127,7 @@ sizePv();draw();
 </script><script>
 window.TL=(()=>{
 const q=id=>document.getElementById(id),dock=q('tl'),box=q('tlBox'),wide=q('tlWide'),cv=q('tlCv'),lane=q('tlLane'),ph=q('tlPh'),tx=q('tlTx'),eS=q('tlS'),eE=q('tlE'),msg=q('tlMsg');
-const st={open:false,sel:-1,pps:80,snap:true,from:false,last:'',pk:null,pkb:null,now:-2};
+const st={open:false,sel:-1,ms:new Set(),pps:80,snap:true,from:false,last:'',pk:null,pkb:null,now:-2};
 const H=[],R=[],L=()=>S.lines;let D=null,els=[],sk=false;
 const nv=v=>v.replace(/\r/g,'').split('\n').map(x=>x.trim()).filter(Boolean).join('\n'),one=v=>v.replace(/\n/g,' ⏎ ');
 const ts=s=>{const c=Math.round(s*100);return'['+String(Math.floor(c/6000)).padStart(2,'0')+':'+((c%6000)/100).toFixed(2).padStart(5,'0')+']'};
@@ -1136,14 +1137,23 @@ const len=()=>Math.max(S.dur||0,L().reduce((a,l)=>Math.max(a,l.e),0)+3,20);
 const hint=m=>{msg.textContent=m;clearTimeout(st.ht);st.ht=setTimeout(()=>msg.textContent='',4500)};
 const p2v=p=>100*Math.log(p/2)/Math.log(200),v2p=v=>2*Math.pow(200,v/100);
 const xT=e=>(e.clientX-box.getBoundingClientRect().left+box.scrollLeft)/st.pps;
+// multi-selection helpers: st.ms holds lyric indexes (only when 2+ are selected); st.sel is the primary one
+const multi=()=>st.ms.size>1;
+const selSet=()=>multi()?new Set(st.ms):(st.sel>=0?new Set([st.sel]):new Set());
+function setMulti(s,pri){if(s.size<2){st.ms=new Set();st.sel=s.size?[...s][0]:-1}else{st.ms=s;st.sel=s.has(pri)?pri:[...s].pop()}selUI();if(multi())hint(st.ms.size+' lyrics selected. Drag any of them to move all together, or press Delete.')}
+function selAll(){const n=L().length;if(!n)return;setMulti(new Set(L().map((_,i)=>i)),st.sel>=0?st.sel:0)}
+function grp(){const a=L();return[...st.ms].sort((x,y)=>x-y).filter(i=>a[i]).map(i=>({i,s:a[i].s,x:a[i].x}))}
+function clampD(g,d){const a=L(),set=new Set(g.map(o=>o.i));for(const o of g){const p=a[o.i-1],n=a[o.i+1];if(!set.has(o.i-1)){const lo=(p?p.s+.1:0)-o.s;if(d<lo)d=lo}if(!set.has(o.i+1)&&n){const hi=o.x!=null?n.s-o.x:n.s-.1-o.s;if(d>hi)d=hi}}return d}
+function moveG(g,d){const a=L();d=Math.round(clampD(g,d)*100)/100;g.forEach(o=>{const l=a[o.i];l.s=o.s+d;if(o.x!=null)l.x=o.x+d});return d}
+let mq=null;
 // every lyric has a start; its end is automatic (next start, max 7 s) unless trimmed (l.x)
 function fix(c){const a=L();a.forEach((l,i)=>{const n=a[i+1],d=n?Math.min(n.s,l.s+7):l.s+4.5;if(l.x!=null){const x=n?Math.min(l.x,n.s):l.x;if(c&&(x<=l.s+.05||Math.abs(x-d)<.015))delete l.x;else l.x=x}l.e=l.x!=null?l.x:d})}
 const ser=()=>L().map(l=>ts(l.s)+' '+l.t+(l.x!=null?'\n'+ts(l.x)+' ':'')).join('\n');
 function apply(t,sel){q('lt').value=t;st.sel=sel;lyr()}
-function commit(){const a=L(),cur=a[st.sel];a.forEach(l=>{l.s=Math.max(0,Math.round(l.s*100)/100);if(l.x!=null)l.x=Math.round(l.x*100)/100});a.sort((p,r)=>p.s-r.s);fix(true);const t=ser();st.sel=cur?a.indexOf(cur):-1;if(t===st.last){sync();return}H.push(st.last);if(H.length>150)H.shift();R.length=0;apply(t,st.sel)}
-function undo(){if(!H.length)return;R.push(st.last);apply(H.pop(),st.sel)}
-function redo(){if(!R.length)return;H.push(st.last);apply(R.pop(),st.sel)}
-function sync(){st.last=q('lt').value;if(st.sel>=L().length)st.sel=L().length-1;if(st.open)render()}
+function commit(){const a=L(),cur=a[st.sel],msO=[...st.ms].map(i=>a[i]).filter(Boolean);a.forEach(l=>{l.s=Math.max(0,Math.round(l.s*100)/100);if(l.x!=null)l.x=Math.round(l.x*100)/100});a.sort((p,r)=>p.s-r.s);fix(true);const t=ser();st.sel=cur?a.indexOf(cur):-1;st.ms=new Set(msO.map(l=>a.indexOf(l)).filter(i=>i>=0));if(st.ms.size<2)st.ms=new Set();if(t===st.last){sync();return}H.push(st.last);if(H.length>150)H.shift();R.length=0;apply(t,st.sel)}
+function undo(){if(!H.length)return;st.ms=new Set();R.push(st.last);apply(H.pop(),st.sel)}
+function redo(){if(!R.length)return;st.ms=new Set();H.push(st.last);apply(R.pop(),st.sel)}
+function sync(){st.last=q('lt').value;if(st.sel>=L().length)st.sel=L().length-1;if(st.ms.size){st.ms=new Set([...st.ms].filter(i=>i<L().length));if(st.ms.size<2)st.ms=new Set()}if(st.open)render()}
 // drawing
 function peaks(){if(st.pkb===S.buf)return;st.pkb=S.buf;st.pk=null;if(!S.buf)return;const d=S.buf.getChannelData(0),k=Math.max(1,Math.floor(S.buf.sampleRate/200)),n=Math.ceil(d.length/k),p=new Float32Array(n);let mx=1e-6;for(let i=0;i<n;i++){let m=0;const e=Math.min(d.length,(i+1)*k);for(let j=i*k;j<e;j++){const v=d[j]<0?-d[j]:d[j];if(v>m)m=v}p[i]=m;if(m>mx)mx=m}for(let i=0;i<n;i++)p[i]/=mx;st.pk=p}
 function size(){const W=box.clientWidth;if(!W)return;const dpr=window.devicePixelRatio||1;wide.style.width=Math.max(W,Math.ceil(len()*st.pps)+80)+'px';if(cv.width!=Math.round(W*dpr)||cv.height!=Math.round(80*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(80*dpr);cv.style.width=W+'px';cv.style.height='80px'}}
@@ -1155,9 +1165,9 @@ function paint(){if(!st.open)return;const W=box.clientWidth;if(!W)return;peaks()
  for(let k=Math.floor(o/p/mn);k*mn*p-o<W;k++){const px=Math.round(k*mn*p-o)+.5,maj=k%dv==0;x.moveTo(px,maj?14:20);x.lineTo(px,24);if(maj){const t=k*mn;x.fillText(Math.floor(t/60)+':'+(sp<1?(t%60).toFixed(1).padStart(4,'0'):String(Math.round(t%60)).padStart(2,'0')),px+3,9)}}
  x.moveTo(0,24.5);x.lineTo(W,24.5);x.stroke();
  L().forEach((l,i)=>{const px=l.s*p-o;if(px<-8||px>W+8)return;x.fillStyle=i==st.sel?'#ff9f0a':ac;x.globalAlpha=.45;x.fillRect(Math.round(px),24,1,56);x.globalAlpha=1;x.beginPath();x.moveTo(px-5,0);x.lineTo(px+5,0);x.lineTo(px,8);x.fill()})}
-function place(){L().forEach((l,i)=>{const b=els[i];if(!b)return;b.style.left=l.s*st.pps+'px';b.style.width=Math.max(6,(l.e-l.s)*st.pps-2)+'px';b.classList.toggle('sel',i==st.sel)})}
-function form(){const l=L()[st.sel];tx.disabled=eS.disabled=eE.disabled=!l;if(!l){tx.value=eS.value=eE.value='';return}if(nv(tx.value)!==l.t)tx.value=l.t;eS.value=ft(l.s);eE.value=ft(l.e)}
-function btns(){const l=L()[st.sel];['tlSplit','tlDel','tlDup','tlCopy','tlIn','tlOut'].forEach(k=>q(k).disabled=!l);q('tlMerge').disabled=!l||st.sel>=L().length-1;q('tlUn').disabled=!H.length;q('tlRe').disabled=!R.length}
+function place(){L().forEach((l,i)=>{const b=els[i];if(!b)return;b.style.left=l.s*st.pps+'px';b.style.width=Math.max(6,(l.e-l.s)*st.pps-2)+'px';b.classList.toggle('sel',multi()?st.ms.has(i):i==st.sel)})}
+function form(){const l=L()[st.sel],m=multi();tx.disabled=eS.disabled=eE.disabled=!l||m;if(!l||m){tx.value=eS.value=eE.value='';return}if(nv(tx.value)!==l.t)tx.value=l.t;eS.value=ft(l.s);eE.value=ft(l.e)}
+function btns(){const l=L()[st.sel],m=multi();['tlSplit','tlDup','tlIn','tlOut'].forEach(k=>q(k).disabled=!l||m);['tlDel','tlCopy'].forEach(k=>q(k).disabled=!l);q('tlAll').disabled=!L().length;q('tlMerge').disabled=!l||m||st.sel>=L().length-1;q('tlUn').disabled=!H.length;q('tlRe').disabled=!R.length}
 function selUI(){place();form();btns();paint()}
 function render(){if(!st.open)return;size();lane.textContent='';els=L().map((l,i)=>{const b=document.createElement('div');b.className='tb';b.dataset.i=i;b.title=l.t;const sp=document.createElement('span');sp.textContent=(i+1)+' · '+one(l.t);const a=document.createElement('i'),c=document.createElement('i');a.className='l';c.className='r';b.append(sp,a,c);lane.appendChild(b);return b});st.now=-2;ph.style.left=curT()*st.pps+'px';selUI()}
 // playhead
@@ -1165,40 +1175,52 @@ function seek(t){t=Math.max(0,S.dur?Math.min(t,S.dur):t);try{S.aud.currentTime=t
 function ui(T){if(!st.open)return;ph.style.left=T*st.pps+'px';q('tlTm').textContent=ft(T);if(st.pkb!==S.buf){size();paint()}
  if(S.playing){const x=T*st.pps-box.scrollLeft;if(x<0||x>box.clientWidth-40)box.scrollLeft=Math.max(0,T*st.pps-box.clientWidth*.25)}
  const a=L();let k=-1;for(let i=0;i<a.length;i++)if(T>=a[i].s&&T<a[i].e)k=i;if(k!==st.now){if(els[st.now])els[st.now].classList.remove('now');if(els[k])els[k].classList.add('now');st.now=k}}
-function snapT(t,skip){if(!st.snap)return Math.round(t*100)/100;let b=null,bd=8/st.pps;const c=[curT(),0];L().forEach((l,i)=>{if(i!=skip)c.push(l.s,l.e)});c.forEach(v=>{const d=Math.abs(v-t);if(d<bd){bd=d;b=v}});return b!=null?b:Math.round(t*100)/100}
+function snapT(t,skip){if(!st.snap)return Math.round(t*100)/100;let b=null,bd=8/st.pps;const c=[curT(),0];L().forEach((l,i)=>{if(i!=skip&&!(D&&D.m=='g'&&st.ms.has(i)))c.push(l.s,l.e)});c.forEach(v=>{const d=Math.abs(v-t);if(d<bd){bd=d;b=v}});return b!=null?b:Math.round(t*100)/100}
 // pointer: lyric blocks
-lane.onpointerdown=e=>{const b=e.target.closest('.tb');if(!b){st.sel=-1;selUI();seek(xT(e));return}
- const i=+b.dataset.i,l=L()[i],c=e.target.classList;st.sel=i;selUI();D={i,m:c.contains('l')?'l':c.contains('r')?'r':'m',x:e.clientX,s:l.s,e:l.e,xx:l.x,t:xT(e),mv:false};lane.setPointerCapture(e.pointerId);e.preventDefault()};
-lane.onpointermove=e=>{if(!D)return;const dx=e.clientX-D.x;if(!D.mv&&Math.abs(dx)<3)return;D.mv=true;const a=L(),l=a[D.i],p=a[D.i-1],n=a[D.i+1],d=dx/st.pps,lo=p?p.s+.1:0;
+lane.onpointerdown=e=>{const b=e.target.closest('.tb'),mod=e.ctrlKey||e.metaKey;
+ if(!b){D={m:'box',x:e.clientX,t:xT(e),mv:false,add:mod||e.shiftKey,base:selSet()};lane.setPointerCapture(e.pointerId);e.preventDefault();return}
+ const i=+b.dataset.i,l=L()[i],c=e.target.classList;
+ if(mod){const s=selSet();s.has(i)?s.delete(i):s.add(i);setMulti(s,i);e.preventDefault();return}
+ if(e.shiftKey&&st.sel>=0){const s=new Set(),lo=Math.min(st.sel,i),hi=Math.max(st.sel,i);for(let k=lo;k<=hi;k++)s.add(k);setMulti(s,i);e.preventDefault();return}
+ const grab=multi()&&st.ms.has(i)&&!c.contains('l')&&!c.contains('r');
+ if(grab){st.sel=i;selUI()}else{st.ms=new Set();st.sel=i;selUI()}
+ D={i,m:grab?'g':c.contains('l')?'l':c.contains('r')?'r':'m',x:e.clientX,s:l.s,e:l.e,xx:l.x,t:xT(e),mv:false};if(grab)D.g=grp();lane.setPointerCapture(e.pointerId);e.preventDefault()};
+function boxMove(e){const t1=xT(e),lo=Math.min(D.t,t1),hi=Math.max(D.t,t1);if(!mq){mq=document.createElement('div');mq.style.cssText='position:absolute;top:0;bottom:0;z-index:5;pointer-events:none;border:1px solid #ff9f0a;background:rgba(255,159,10,.15);border-radius:4px';lane.appendChild(mq)}
+ mq.style.left=lo*st.pps+'px';mq.style.width=(hi-lo)*st.pps+'px';const s=new Set(D.add?D.base:[]);L().forEach((l,i)=>{if(l.s<hi&&l.e>lo)s.add(i)});D.last=s;setMulti(s,s.size?Math.max(...s):-1)}
+function gMove(dx){const a=L(),d=dx/st.pps;let ns=snapT(D.s+d,D.i);const o=D.g.find(o=>o.i==D.i);if(o&&o.x!=null){const ne=snapT(o.x+d,D.i);if(Math.abs(ne-o.x-d)<Math.abs(ns-D.s-d))ns=ne-(o.x-D.s)}
+ moveG(D.g,ns-D.s);fix(false);place();form();paint();draw()}
+lane.onpointermove=e=>{if(!D)return;const dx=e.clientX-D.x;if(!D.mv&&Math.abs(dx)<3)return;D.mv=true;if(D.m=='box'){boxMove(e);return}if(D.m=='g'){gMove(dx);return}const a=L(),l=a[D.i],p=a[D.i-1],n=a[D.i+1],d=dx/st.pps,lo=p?p.s+.1:0;
  if(D.m=='m'){const du=D.xx!=null?D.xx-D.s:0;let ns=snapT(D.s+d,D.i);if(D.xx!=null){const ne=snapT(D.xx+d,D.i);if(Math.abs(ne-D.xx-d)<Math.abs(ns-D.s-d))ns=ne-du}ns=Math.min(n?(D.xx!=null?n.s-du:n.s-.1):1e9,Math.max(lo,ns));l.s=ns;if(D.xx!=null)l.x=ns+du}
  else if(D.m=='l')l.s=Math.min((D.xx!=null?D.xx:n?n.s:1e9)-.1,Math.max(lo,snapT(D.s+d,D.i)));
  else l.x=Math.min(n?n.s:1e9,Math.max(l.s+.1,snapT(D.e+d,D.i)));
  fix(false);place();form();paint();draw()};
-lane.onpointerup=lane.onpointercancel=()=>{if(!D)return;const d=D,l=L()[d.i];D=null;if(d.mv)commit();else seek(Math.min(Math.max(d.t,l.s),l.e-.001))};
-lane.ondblclick=e=>{if(e.target.closest('.tb')){tx.focus();tx.select()}};
+lane.onpointerup=lane.onpointercancel=()=>{if(!D)return;const d=D;D=null;
+ if(d.m=='box'){if(mq){mq.remove();mq=null}if(!d.mv){if(!d.add){st.ms=new Set();st.sel=-1;selUI()}seek(d.t)}return}
+ const l=L()[d.i];if(d.mv)commit();else{if(d.m=='g'){st.ms=new Set();st.sel=d.i;selUI()}seek(Math.min(Math.max(d.t,l.s),l.e-.001))}};
+lane.ondblclick=e=>{if(e.target.closest('.tb')){if(multi()){st.ms=new Set();st.sel=+e.target.closest('.tb').dataset.i;selUI()}tx.focus();tx.select()}};
 cv.onpointerdown=e=>{sk=true;cv.setPointerCapture(e.pointerId);seek(xT(e))};cv.onpointermove=e=>{if(sk)seek(xT(e))};cv.onpointerup=cv.onpointercancel=()=>{sk=false};
 box.onscroll=paint;
 // edit actions
-function split(){const i=st.sel,a=L(),l=a[i];if(!l)return;const T=curT(),v=tx.value;let pos=tx.selectionStart,t=T;const inT=T>l.s+.1&&T<l.e-.1,okP=pos>0&&pos<v.length;
+function split(){st.ms=new Set();const i=st.sel,a=L(),l=a[i];if(!l)return;const T=curT(),v=tx.value;let pos=tx.selectionStart,t=T;const inT=T>l.s+.1&&T<l.e-.1,okP=pos>0&&pos<v.length;
  if(!inT)t=okP?l.s+(l.e-l.s)*pos/v.length:l.s+(l.e-l.s)/2;
  if(!okP){pos=Math.round(v.length*(t-l.s)/(l.e-l.s));const sp=[...v.matchAll(/ /g)].map(m=>m.index);if(sp.length)pos=sp.reduce((b,c)=>Math.abs(c-pos)<Math.abs(b-pos)?c:b)}
  const A=v.slice(0,pos).trim(),B=v.slice(pos).trim();if(!A||!B||t<=l.s+.05||t>=l.e-.05)return hint('Nothing to cut here. Click inside the text where it should break.');
  const nl={s:t,t:B};if(l.x!=null)nl.x=l.x;l.t=A;l.x=t;a.splice(i+1,0,nl);st.sel=i+1;commit()}
-function merge(){const i=st.sel,a=L(),l=a[i],n=a[i+1];if(!l||!n)return;l.x=n.e;l.t=l.t+' '+n.t;a.splice(i+1,1);commit()}
-function add(){const T=curT(),a=L();if(a.some(l=>Math.abs(l.s-T)<.1))return hint('A lyric already starts here. Move the playhead first.');const nl={s:T,t:'New lyric'};a.push(nl);a.sort((p,r)=>p.s-r.s);st.sel=a.indexOf(nl);commit();tx.focus();tx.select()}
+function merge(){st.ms=new Set();const i=st.sel,a=L(),l=a[i],n=a[i+1];if(!l||!n)return;l.x=n.e;l.t=l.t+' '+n.t;a.splice(i+1,1);commit()}
+function add(){st.ms=new Set();const T=curT(),a=L();if(a.some(l=>Math.abs(l.s-T)<.1))return hint('A lyric already starts here. Move the playhead first.');const nl={s:T,t:'New lyric'};a.push(nl);a.sort((p,r)=>p.s-r.s);st.sel=a.indexOf(nl);commit();tx.focus();tx.select()}
 function copyL(e){const l=L()[st.sel];if(!l)return false;st.clip={t:l.t,d:l.x!=null?l.x-l.s:null};if(e&&e.clipboardData){e.clipboardData.setData('text/plain',l.t);e.preventDefault()}else{try{navigator.clipboard.writeText(l.t)}catch(x){}}hint('Copied. Move the playhead and press Ctrl/⌘ V to paste.');return true}
 function pasteL(txt){let t=null,d=null;if(st.clip&&(txt==null||nv(txt)===st.clip.t)){t=st.clip.t;d=st.clip.d}else if(txt!=null&&nv(txt))t=nv(txt);if(!t)return hint('Nothing to paste yet. Select a lyric and press Ctrl/⌘ C first.');
- const T=Math.round(curT()*100)/100,a=L();if(a.some(l=>Math.abs(l.s-T)<.1))return hint('A lyric already starts here. Move the playhead to where the pasted lyric should start.');
+ st.ms=new Set();const T=Math.round(curT()*100)/100,a=L();if(a.some(l=>Math.abs(l.s-T)<.1))return hint('A lyric already starts here. Move the playhead to where the pasted lyric should start.');
  const nl={s:T,t};if(d!=null&&d>.1)nl.x=T+d;a.push(nl);a.sort((p,r)=>p.s-r.s);st.sel=a.indexOf(nl);commit();hint('Pasted.')}
-function dup(){const i=st.sel,a=L(),l=a[i];if(!l)return hint('Select a lyric first, then press Ctrl/⌘ + D.');
+function dup(){st.ms=new Set();const i=st.sel,a=L(),l=a[i];if(!l)return hint('Select a lyric first, then press Ctrl/⌘ + D.');
  const n=a[i+1],len=l.e-l.s,s0=Math.round(l.e*100)/100,room=n?n.s-s0:Infinity;
  if(room<.1)return hint('No empty space after this lyric. Trim its end or move the next lyric first.');
  const d=Math.min(len,room),nl={s:s0,t:l.t,x:Math.round((s0+d)*100)/100};a.splice(i+1,0,nl);st.sel=i+1;commit();hint(d<len-.005?'Duplicated and shortened to fit the gap.':'Duplicated at the same length.')}
-function del(){const i=st.sel;if(i<0)return;L().splice(i,1);st.sel=Math.min(i,L().length-1);commit()}
+function del(){if(multi()){const a=L(),dead=new Set(st.ms),first=Math.min(...dead);a.forEach((l,k)=>{if(!dead.has(k)&&dead.has(k+1)&&l.x==null)l.x=l.e});for(let k=a.length-1;k>=0;k--)if(dead.has(k))a.splice(k,1);st.ms=new Set();st.sel=Math.min(first,a.length-1);commit();return}const i=st.sel;if(i<0)return;{const p=L()[i-1];if(p&&p.x==null)p.x=p.e}L().splice(i,1);st.sel=Math.min(i,L().length-1);commit()}
 function setIn(adv){const a=L(),l=a[st.sel];if(!l)return;const T=curT(),p=a[st.sel-1],n=a[st.sel+1];if(T<(p?p.s+.1:0)||T>(l.x!=null?l.x:n?n.s:1e9)-.1)return hint('Put the playhead between the previous and the next lyric first.');l.s=T;commit();if(adv&&st.sel<L().length-1){st.sel++;render()}}
 function setOut(){const a=L(),l=a[st.sel],n=a[st.sel+1];if(!l)return;const T=curT();if(T<l.s+.1||(n&&T>n.s))return hint('The end has to be after the start and before the next lyric.');l.x=T;commit()}
-function shift(d){const a=L();if(!a.length)return;const i0=st.from&&st.sel>=0?st.sel:0,p=a[i0-1],lo=-(a[i0].s-(p?p.s+.1:0));if(d<lo)d=lo;if(!d)return hint('Can’t shift further that way.');for(let i=i0;i<a.length;i++){a[i].s+=d;if(a[i].x!=null)a[i].x+=d}commit()}
-function nudge(d){const a=L(),l=a[st.sel];if(!l)return;const p=a[st.sel-1],n=a[st.sel+1],du=l.x!=null?l.x-l.s:0,ns=Math.min(n?(l.x!=null?n.s-du:n.s-.1):1e9,Math.max(p?p.s+.1:0,l.s+d));if(ns==l.s)return;l.s=ns;if(l.x!=null)l.x=ns+du;commit()}
+function shift(d){const a=L();if(!a.length)return;if(multi()){const g=grp(),r=moveG(g,d);if(!r)return hint('Can’t shift the selection further that way.');commit();return}const i0=st.from&&st.sel>=0?st.sel:0,p=a[i0-1],lo=-(a[i0].s-(p?p.s+.1:0));if(d<lo)d=lo;if(!d)return hint('Can’t shift further that way.');for(let i=i0;i<a.length;i++){a[i].s+=d;if(a[i].x!=null)a[i].x+=d}commit()}
+function nudge(d){if(multi()){const r=moveG(grp(),d);if(r)commit();return}const a=L(),l=a[st.sel];if(!l)return;const p=a[st.sel-1],n=a[st.sel+1],du=l.x!=null?l.x-l.s:0,ns=Math.min(n?(l.x!=null?n.s-du:n.s-.1):1e9,Math.max(p?p.s+.1:0,l.s+d));if(ns==l.s)return;l.s=ns;if(l.x!=null)l.x=ns+du;commit()}
 tx.oninput=()=>{const l=L()[st.sel],v=nv(tx.value);if(!l||!v)return;l.t=v;if(els[st.sel])els[st.sel].firstChild.textContent=(st.sel+1)+' · '+one(v);for(const k in cache)delete cache[k];draw()};
 tx.onchange=()=>{if(!L()[st.sel])return;if(!tx.value.trim())form();else commit()};
 tx.onkeydown=e=>{if(e.key=='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();tx.blur()}};
@@ -1212,7 +1234,7 @@ box.addEventListener('wheel',e=>{
  if(e.altKey&&!e.ctrlKey&&!e.metaKey){e.preventDefault();const d=e.deltaY||e.deltaX;if(!d)return;zoom(st.pps*(d<0?1.15:1/1.15),e.clientX-box.getBoundingClientRect().left)}
  else if(e.shiftKey&&!e.ctrlKey&&!e.metaKey&&!e.altKey){e.preventDefault();const d=e.deltaX||e.deltaY;if(d)box.scrollLeft+=d}
 },{passive:false});
-q('tlDup').onclick=dup;q('tlCopy').onclick=()=>copyL();q('tlPaste').onclick=async()=>{let x=null;try{x=await navigator.clipboard.readText()}catch(e){}pasteL(x)};q('tlSplit').onclick=split;q('tlMerge').onclick=merge;q('tlAdd').onclick=add;q('tlDel').onclick=del;q('tlIn').onclick=()=>setIn(false);q('tlOut').onclick=setOut;q('tlUn').onclick=undo;q('tlRe').onclick=redo;
+q('tlAll').onclick=selAll;q('tlDup').onclick=dup;q('tlCopy').onclick=()=>copyL();q('tlPaste').onclick=async()=>{let x=null;try{x=await navigator.clipboard.readText()}catch(e){}pasteL(x)};q('tlSplit').onclick=split;q('tlMerge').onclick=merge;q('tlAdd').onclick=add;q('tlDel').onclick=del;q('tlIn').onclick=()=>setIn(false);q('tlOut').onclick=setOut;q('tlUn').onclick=undo;q('tlRe').onclick=redo;
 q('tlSnap').onclick=e=>{st.snap=!st.snap;e.currentTarget.classList.toggle('on',st.snap)};
 q('tlScope').onclick=e=>{st.from=!st.from;e.currentTarget.textContent=st.from?'From selected':'All lyrics'};
 dock.querySelectorAll('[data-sh]').forEach(b=>b.onclick=()=>shift(+b.dataset.sh));
@@ -1235,7 +1257,7 @@ window.addEventListener('keydown',noAlt,true);window.addEventListener('keyup',no
 document.addEventListener('copy',e=>{if(!st.open||editing(e)||String(getSelection()))return;copyL(e)});
 document.addEventListener('paste',e=>{if(!st.open||editing(e))return;e.preventDefault();pasteL(e.clipboardData.getData('text/plain')||null)});
 document.addEventListener('keydown',e=>{if(!st.open)return;if((e.ctrlKey||e.metaKey)&&!e.altKey&&!e.shiftKey&&e.key.toLowerCase()=='d'){e.preventDefault();if(!e.repeat)dup();return}const tg=e.target.tagName;if(/^(INPUT|TEXTAREA|SELECT)$/.test(tg))return;const k=e.key.toLowerCase(),mod=e.metaKey||e.ctrlKey;
- if(mod&&k=='z'){e.preventDefault();e.shiftKey?redo():undo();return}if(mod&&k=='y'){e.preventDefault();redo();return}if(k==' '){if(tg=='BUTTON')return;e.preventDefault();q('tlPlay').click();return}if(mod||e.altKey)return;
+ if(mod&&k=='z'){e.preventDefault();e.shiftKey?redo():undo();return}if(mod&&k=='y'){e.preventDefault();redo();return}if(mod&&k=='a'){e.preventDefault();selAll();return}if(k=='escape'&&(st.sel>=0||multi())){st.ms=new Set();st.sel=-1;selUI();return}if(k==' '){if(tg=='BUTTON')return;e.preventDefault();q('tlPlay').click();return}if(mod||e.altKey)return;
  if(false){}
  else if(k=='s')split();else if(k=='i')setIn(true);else if(k=='o')setOut();
  else if(k=='delete'||k=='backspace'){e.preventDefault();del()}
