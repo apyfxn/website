@@ -211,7 +211,7 @@ h2+.sect{margin-top:6px;padding-top:0;border-top:0}
 <div class="tr"><button id="pl">▶</button><input type="range" id="sc" min="0" max="1000" value="0"><span id="tm" style="min-width:90px">0:00 / 0:00</span></div>
 <div class="card"><div class="xrow xr1"><label>Resolution<select id="res"><option value="1080">1080p Full HD</option><option value="1440">1440p</option><option value="2160">4K UHD</option></select></label><label>Video shape<select id="shape"><option value="h">Horizontal 16:9</option><option value="v">Vertical 9:16 (Shorts / Reels)</option></select></label><label>Frame rate<select id="fps"><option>30</option><option selected>60</option><option>120</option></select></label><button id="tlo" type="button">🎞 Edit timeline</button></div>
 <div class="two" style="display:none"><label>Bitrate<select id="qual"><option value="3" selected>Highest (very big file)</option><option value="2">High</option><option value="1">Balanced</option></select></label><label>Video codec<select id="cdc"><option value="auto" selected>Auto (H.264, HEVC/AV1 if needed)</option><option value="avc">H.264 only (plays everywhere)</option></select></label></div>
-<div class="xrow" style="margin-top:12px"><button id="rd">Export MP4</button></div><div class="bar"><i id="pb"></i></div><div id="st"></div><div id="out"></div><div class="appr" role="group" aria-label="Appearance"><button type="button" data-a="rose" title="Rose" aria-label="Rose accent"></button><button type="button" data-a="violet" title="Violet" aria-label="Violet accent"></button><button type="button" data-a="azure" title="Azure" aria-label="Azure accent"></button><button type="button" data-a="emerald" title="Emerald" aria-label="Emerald accent"></button><button type="button" data-a="amber" title="Amber" aria-label="Amber accent"></button><i></i><button type="button" id="uiMode" class="mode" title="Light or dark" aria-label="Switch to light mode">☾</button></div></div></section>
+<div class="xrow" style="margin-top:12px"><button id="rd">Export MP4</button><button id="rdX" type="button" hidden>Cancel</button></div><div class="bar"><i id="pb"></i></div><div id="st"></div><div id="out"></div><div class="appr" role="group" aria-label="Appearance"><button type="button" data-a="rose" title="Rose" aria-label="Rose accent"></button><button type="button" data-a="violet" title="Violet" aria-label="Violet accent"></button><button type="button" data-a="azure" title="Azure" aria-label="Azure accent"></button><button type="button" data-a="emerald" title="Emerald" aria-label="Emerald accent"></button><button type="button" data-a="amber" title="Amber" aria-label="Amber accent"></button><i></i><button type="button" id="uiMode" class="mode" title="Light or dark" aria-label="Switch to light mode">☾</button></div></div></section>
 <aside>
 <div class="cdr"><button type="button" class="s" id="clAll">Collapse all</button></div>
 <div class="card"><h2 data-i="?">Quiz</h2><label>Quiz type<select id="qmode"><option value="gk">General (2 photo options)</option><option value="math">Math quiz (A / B / C)</option><option value="wyr">Would you rather (2-3 photo options)</option><option value="word">Missing letters (Guess the ......)</option><option value="food">Guess the ...... (1 photo + answer)</option><option value="avoid">Avoid Same Answer (question card + ? answer)</option><option value="flag">Guess the Hidden Illusion (clue photo + answer photo)</option><option value="gift">Choose Your Gift (3 mystery gifts)</option><option value="never">Never Have I Ever... (photo + I HAVE / I HAVEN'T)</option><option value="pic3">Guess the ...... (1 photo + A / B / C options)</option></select></label><label id="gklab">Questions<small>Format: Question 1: ... / Option: A, B / Answer: ... (one blank line between questions)</small><textarea id="items" rows="16">Question 1: What is the largest planet in our solar system?
@@ -3132,13 +3132,9 @@ async function hGet(){try{const d=await qdb();return await new Promise(res=>{con
 async function hSet(h){try{const d=await qdb();await new Promise(res=>{const t=d.transaction('h','readwrite');t.objectStore('h').put(h,'dir');t.oncomplete=res;t.onerror=res})}catch(_){}}
 async function pickDir(){if(!window.showDirectoryPicker)return null;try{const h=await showDirectoryPicker({id:'qlfdir',mode:'readwrite',startIn:'desktop'});await hSet(h);return h}catch(e){return e&&e.name=='AbortError'?false:null}}
 async function getOutFile(name){window._qlfWhere='the file you picked';
- let h=await hGet();
- if(h){try{let p=await h.queryPermission({mode:'readwrite'});if(p!='granted')p=await h.requestPermission({mode:'readwrite'});if(p!='granted')h=null}catch(_){h=null}}
- if(!h){$('st').classList.remove('bad');$('st').textContent='First time only: on your Desktop make or choose a folder called "Long Form". After that every export saves there automatically.';h=await pickDir();if(h===false)return false}
- if(h){try{const sub=h.name=='Long Form'?h:await h.getDirectoryHandle('Long Form',{create:true});const f=await sub.getFileHandle(name,{create:true});window._qlfWhere=h.name+' / Long Form / '+name;return f}catch(_){}}
- if(window.showSaveFilePicker){try{return await showSaveFilePicker({suggestedName:name,startIn:'desktop',types:[{description:'MP4 video',accept:{'video/mp4':['.mp4']}}]})}catch(e){if(e&&e.name=='AbortError')return false}}
+ if(window.showSaveFilePicker){try{const f=await showSaveFilePicker({suggestedName:name,startIn:'desktop',types:[{description:'MP4 video',accept:{'video/mp4':['.mp4']}}]});window._qlfWhere=f.name;return f}catch(e){if(e&&e.name=='AbortError')return false}}
  return null}
-async function exp(o={}){const st=(m,bad)=>{$('st').textContent=m;$('st').classList.toggle('bad',!!bad)},bar=$('pb'),cv=$('cv');
+async function exp0(o={}){const st=(m,bad)=>{$('st').textContent=m;$('st').classList.toggle('bad',!!bad)},bar=$('pb'),cv=$('cv');
  if(!(window.VideoEncoder&&window.AudioEncoder&&window.VideoFrame&&window.Mp4Muxer&&window.OfflineAudioContext)){st('MP4 export needs Chrome or Edge on a computer.');return}
  let fh=o.fh||null,ws=null;if(!fh){const d=new Date(),z=n=>String(n).padStart(2,'0');fh=await getOutFile('quiz-long-'+(VERT()?'vert-':'')+$('res').value+'p'+$('fps').value+'-'+z(d.getHours())+z(d.getMinutes())+z(d.getSeconds())+'.mp4');if(fh===false){st('Export cancelled.');return}}
  const fps=+$('fps').value,RS=+$('res').value,VV=VERT(),H=VV?Math.round(RS*16/9):RS,W=VV?RS:Math.round(RS*16/9),SR=48000,sv=A,P=TL(),ql=+$('qual').value,cm=o.avc?'avc':$('cdc').value;
@@ -3162,7 +3158,7 @@ async function exp(o={}){const st=(m,bad)=>{$('st').textContent=m;$('st').classL
  $('rd').disabled=true;stop();audio();st('Preparing audio…');let ve=null,ae=null,err=null,stage='audio';
  try{const oc=new OfflineAudioContext(2,Math.ceil((P.T+.6)*SR),SR),om=oc.createGain(),ob=oc.createGain();om.gain.value=.9;om.connect(oc.destination);ob.connect(om);ob.gain.value=bgGain();A={ac:oc,m:om,bg:ob,buf:sv.buf,d:sv.d};
  if(MUS.length)schedMusic(oc,ob,P,0,0);else{let ns=.05,k=0;while(ns<P.T){beat(ns,k++);ns+=.254}}
- evs(P).forEach(e=>SND[e.k](e.t,e.v));vo(P).forEach(v=>{const q=oc.createBufferSource();q.buffer=AS.buf;q.connect(om);q.start(v.at,v.o,v.d)});const ab=await oc.startRendering();A=sv;
+ evs(P).forEach(e=>SND[e.k](e.t,e.v));vo(P).forEach(v=>{const q=oc.createBufferSource();q.buffer=AS.buf;q.connect(om);q.start(v.at,v.o,v.d)});const ab=await oc.startRendering();A=sv;if(window._qCancel)throw new DOMException('Export cancelled','AbortError');
  ws=fh?await fh.createWritable():null;const mux=new Mp4Muxer.Muxer({target:ws?new Mp4Muxer.FileSystemWritableFileStreamTarget(ws):new Mp4Muxer.ArrayBufferTarget(),video:{codec:mc,width:W,height:H},audio:{codec:'aac',numberOfChannels:2,sampleRate:SR},fastStart:ws?false:'in-memory'});err=null;
  const aacOK=async b=>{try{let er=null;const e=new AudioEncoder({output:()=>{},error:x=>er=x});e.configure({codec:'mp4a.40.2',sampleRate:SR,numberOfChannels:2,bitrate:b});const n=SR/2,d=new Float32Array(n*2);for(let i=0;i<n;i++){d[i]=d[n+i]=Math.sin(i/20)*.1}const a=new AudioData({format:'f32-planar',sampleRate:SR,numberOfFrames:n,numberOfChannels:2,timestamp:0,data:d});e.encode(a);a.close();await e.flush();const ok=!er&&e.state!='closed';try{e.close()}catch(_){}return ok}catch(x){return false}};
  let abr=0;for(const b of[320000,256000,192000,160000,128000,96000])if(await aacOK(b)){abr=b;break}if(!abr)abr=128000;
@@ -3171,7 +3167,7 @@ async function exp(o={}){const st=(m,bad)=>{$('st').textContent=m;$('st').classL
   const bad=async()=>{if(er)return er;if(e.state=='closed'){await slp(80);return er||new Error('audio encoder closed unexpectedly')}return null};
   try{e.configure({codec:'mp4a.40.2',sampleRate:SR,numberOfChannels:2,bitrate:b});
    const c0=ab.getChannelData(0),c1=ab.getChannelData(1);
-   for(let p=0;p<ab.length;p+=CH){let x=await bad();if(x)throw x;
+   for(let p=0;p<ab.length;p+=CH){if(window._qCancel)throw new DOMException('Export cancelled','AbortError');let x=await bad();if(x)throw x;
     const n=Math.min(CH,ab.length-p),d=new Float32Array(n*2);d.set(c0.subarray(p,p+n),0);d.set(c1.subarray(p,p+n),n);
     for(let i=0;i<d.length;i++){const v=d[i];if(!(v>=-1&&v<=1))d[i]=v>1?1:v<-1?-1:0}
     const ad=new AudioData({format:'f32-planar',sampleRate:SR,numberOfFrames:n,numberOfChannels:2,timestamp:Math.round(p/SR*1e6),data:d});
@@ -3180,19 +3176,22 @@ async function exp(o={}){const st=(m,bad)=>{$('st').textContent=m;$('st').classL
    await e.flush();const z=await bad();if(z)throw z;
    try{e.close()}catch(_){}ae=null;return ch}
   catch(x){await slp(80);try{e.close()}catch(_){}ae=null;throw er||x}};
- let ach=null,aerr=null;for(const[b,CH]of[[abr,SR],[Math.min(abr,192000),4096],[128000,2048],[96000,1024]]){try{ach=await encA(b,CH);break}catch(x){aerr=x;st('Audio encoder had a problem, trying a safer setting…')}}
+ let ach=null,aerr=null;for(const[b,CH]of[[abr,SR],[Math.min(abr,192000),4096],[128000,2048],[96000,1024]]){try{ach=await encA(b,CH);break}catch(x){if(window._qCancel)throw x;aerr=x;st('Audio encoder had a problem, trying a safer setting…')}}
  if(!ach)throw aerr||new Error('Audio encoding failed');
  ach.forEach(([c,m])=>mux.addAudioChunk(c,m));
  stage='video';ve=new VideoEncoder({output:(c,m)=>mux.addVideoChunk(c,m),error:e=>err=e});ve.configure(vcfg(codec,mc,vb));
  cv.width=W;cv.height=H;const N=Math.ceil(P.T*fps),t0=performance.now();
- for(let i=0;i<N;i++){if(err)throw err;draw(i/fps);if(ve.state=='closed'){await slp(80);throw err||new Error('Video encoder stopped unexpectedly ('+cn+' '+W+'x'+H+' '+fps+'fps). Set Video codec to H.264 or lower the resolution / fps.')}const f=new VideoFrame(cv,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});try{ve.encode(f,{keyFrame:i%(fps*2)==0})}catch(x){f.close();await slp(80);throw err||x}f.close();while(ve.encodeQueueSize>5){if(err)throw err;await waitQ(ve)}
+ for(let i=0;i<N;i++){if(window._qCancel)throw new DOMException('Export cancelled','AbortError');if(err)throw err;draw(i/fps);if(ve.state=='closed'){await slp(80);throw err||new Error('Video encoder stopped unexpectedly ('+cn+' '+W+'x'+H+' '+fps+'fps). Set Video codec to H.264 or lower the resolution / fps.')}const f=new VideoFrame(cv,{timestamp:Math.round(i*1e6/fps),duration:Math.round(1e6/fps)});try{ve.encode(f,{keyFrame:i%(fps*2)==0})}catch(x){f.close();await slp(80);throw err||x}f.close();while(ve.encodeQueueSize>5){if(err)throw err;await waitQ(ve)}
   if(i%8==0){const el=(performance.now()-t0)/1000,eta=el/(i+1)*(N-i-1);bar.style.width=i/N*100+'%';st(`Rendering ${Math.floor(i/N*100)}% · frame ${i+1} of ${N} · ${W}x${H} ${fps} fps ${cn} ${Math.round(vb/1e6)} Mbps · about ${Math.max(1,Math.ceil(eta/60))} min left`);await ytick()}}
  await ve.flush();await slp(30);if(err)throw err;ve.close();ve=ae=null;mux.finalize();if(ws){await ws.close();ws=null;$('out').innerHTML='';bar.style.width='100%';st('Done · saved to '+(window._qlfWhere||'the file you picked')+' ('+W+'x'+H+' · '+fps+' fps · '+cn+' · '+Math.round(vb/1e6)+' Mbps)'+note);setCv();redraw();$('rd').disabled=false;return}const u=URL.createObjectURL(new Blob([mux.target.buffer],{type:'video/mp4'}));
  $('out').innerHTML=`<a download="quiz-long.mp4" href="${u}" style="color:var(--a)">Download again</a>`;bar.style.width='100%';st('Done · saved to your downloads ('+W+'x'+H+' · '+fps+' fps · '+cn+' · '+Math.round(vb/1e6)+' Mbps)'+note);const a=document.createElement('a');a.href=u;a.download='quiz-long.mp4';document.body.appendChild(a);a.click();a.remove()}
  catch(e){A=sv;await new Promise(r=>setTimeout(r,100));try{ve&&ve.close()}catch(_){}try{ae&&ae.close()}catch(_){}try{ws&&await ws.abort()}catch(_){}ws=null;const raw=(err&&err.message)||(e&&e.message)||String(e);
+  if(window._qCancel){try{if(fh&&fh.remove)await fh.remove()}catch(_){}$('out').innerHTML='';$('pb').style.width='0%';st('Export cancelled.');setCv();redraw();$('rd').disabled=false;return}
   if(!o.retry&&stage=='video'){st('Video encoder stopped. Retrying automatically with H.264 at a lower bitrate…');return exp({retry:1,fh,avc:1,br:.6})}
   st('Export failed: '+raw+' — Tip: keep this tab in front while exporting, set Video codec to H.264 and Bitrate to High, then try again.',1)}
  setCv();redraw();$('rd').disabled=false}
+async function exp(o={}){window._qCancel=false;const x=$('rdX');x.hidden=false;x.disabled=false;try{return await exp0(o)}finally{x.hidden=true}}
+$('rdX').onclick=()=>{window._qCancel=true;$('rdX').disabled=true;$('st').classList.remove('bad');$('st').textContent='Cancelling…'};
 $('rd').onclick=()=>exp();
 function seekQ(ev){const ta=ev&&ev.target&&ev.target.dataset&&ev.target.dataset.src?ev.target:$(MM()?'mitems':GF()?'gfitems':NV()?'nitems':PC()?'pitems':WY()?'witems':FD()?'fitems':FG()?'gitems':AV()?'aitems':WD()?'xitems':'items'),ln=ta.value.slice(0,ta.selectionStart).split('\n').length-1,Q=qs(),sr=ta.dataset&&ta.dataset.src||'main';let i=(Q.find(q=>q.src==sr)||{i:0}).i;Q.forEach(q=>{if(q.src==sr&&q.ln<=ln)i=q.i});const P=TL(),g=P.segs[Math.min(i,P.segs.length-1)];if(!g)return;stop();$('sc').value=(g.t0+g.rd+Math.min(1,g.th*.2))/P.T*1000;redraw()}
 ['input','click','keyup'].forEach(v=>{$('items').addEventListener(v,seekQ);$('pitems').addEventListener(v,seekQ);$('nitems').addEventListener(v,seekQ);$('gfitems').addEventListener(v,seekQ);$('mitems').addEventListener(v,seekQ);$('witems').addEventListener(v,seekQ);$('fitems').addEventListener(v,seekQ);$('xitems').addEventListener(v,seekQ);$('gitems').addEventListener(v,seekQ);$('aitems').addEventListener(v,seekQ)});$('qmode').addEventListener('input',()=>{const md=$('qmode').value,w=md=='wyr';[['gklab','gk'],['plab','pic3'],['phl','pic3'],['nlab','never'],['nhl','never'],['glab2','gift'],['gfhl','gift'],['mlab','math'],['mhl','math'],['wlab','wyr'],['whl','wyr'],['flab','food'],['fhl','food'],['glab','flag'],['ghl','flag'],['alab','avoid'],['ahl','avoid'],['xlab','word'],['xhl','word']].forEach(([id,m])=>$(id).style.display=md==m?'':'none');{const t1=$('itext1'),t2=$('itext2'),D={gk:['General Knowledge','{n} Questions'],math:['Can You Guess','This Math Quiz'],wyr:['Would You Rather','{n} Questions'],food:['Guess The Food','{n} Questions'],flag:['Guess The Hidden Illusion','{n} Questions'],avoid:['Avoid Same Answer','{n} Questions'],pic3:['Guess The Picture','{n} Questions'],never:['Never Have I Ever','{n} Questions'],gift:['Choose Your Gift','{n} Rounds'],word:['Guess The Country','{n} Questions']};if(Object.values(D).some(v=>v[0]==t1.value)){t1.value=D[md][0];t2.value=D[md][1]}const rv=$('rev');if(w&&rv.value=='3.5')rv.value='2';else if(!w&&rv.value=='2')rv.value='3.5'}{const pl=$('pal'),DP='#E051FA, #FFA53F, #507CFF, #89ED45, #DF0015, #50C900, #F6024E, #C9307B, #FF2412, #0078FB, #00AC29, #790FB0, #FF7201',FP='#22D3C5, #FFA53F, #8E44FF, #1E90FF, #E0314B, #1DB954, #F6024E, #C9307B, #FF2412, #0078FB, #00AC29, #790FB0, #FF7201';const MP={flag:FP,avoid:'#F0489E, #FFA53F, #8E44FF, #22D3C5, #E0314B, #1DB954, #1E90FF, #C9307B, #FF2412, #0078FB, #00AC29, #790FB0, #FF7201'},cur=Object.keys(MP).find(k=>pl.value==MP[k]);if(pl.value==DP&&MP[md])pl.value=MP[md];else if(cur&&cur!=md)pl.value=MP[md]||DP}stop();redraw()});
@@ -4007,5 +4006,41 @@ aside .card h2::after{background:#2a2b2d!important;color:#9b9ca0!important}
 aside .card h2::before,.grid>aside .card h2::before{color:#ED002A!important}
 a{color:#ED002A}
 ::selection{background:rgba(237,0,42,.3)}
+
+/* ---- buttons: same character, style and UX as index.html ---- */
+:root{--pk-grad:linear-gradient(135deg,#ff82a3 0%,#ff3d77 52%,#d4246c 100%);--pk-rgb:255,61,119}
+button.p:not(:disabled):not(.tlTog),.circ,.tr #pl,#tl .circ,#tlPlay,#rd:not(:disabled){
+  background:var(--pk-grad)!important;color:#fff!important;border:0!important;
+  box-shadow:0 6px 20px rgba(var(--pk-rgb),.3),inset 0 1px 0 rgba(255,255,255,.32)!important;transition:box-shadow .15s,transform .1s!important}
+button.p:not(:disabled):not(.tlTog),#rd{border-radius:16px!important}
+button.p:hover:not(:disabled):not(.tlTog),.circ:hover:not(:disabled),.tr #pl:hover,#tl .circ:hover,#rd:hover:not(:disabled){
+  background:var(--pk-grad)!important;color:#fff!important;
+  box-shadow:0 10px 28px rgba(var(--pk-rgb),.45),inset 0 1px 0 rgba(255,255,255,.4)!important}
+#rd{height:50px!important;font-size:14px!important;font-weight:600}
+#rd:disabled{background:var(--qs-tile)!important;color:#6a6b6f!important;box-shadow:none!important;border:0!important}
+.xrow #rd::after{display:none!important;animation:none!important}
+.tplc .tb button:not(.p),#xqList .xqtg,#tplBox header button{background:var(--qs-tile)!important;color:var(--a-tx)!important;border:1px solid var(--qs-stroke)!important;box-shadow:none!important}
+.tplc .tb button:not(.p):hover,#xqList .xqtg:hover,#tplBox header button:hover{background:#333437!important;color:#fff!important;border-color:#4d4e53!important}
+#tplFab{background:#232426!important;color:#d6d7da!important;border:1px solid var(--qs-stroke)!important;box-shadow:0 6px 20px rgba(0,0,0,.45)!important}
+#tplFab:hover{background:#333437!important;color:#fff!important;transform:none!important}
+
+/* card headers: no square hover box; hover only lights up the +/- button */
+aside .card>h2,aside .card>h2:hover,aside .card>h2:active,aside .card>h2:focus{background:transparent!important;border-radius:18px!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
+aside .card>h2:focus-visible{outline:2px solid rgba(237,0,42,.55)!important;outline-offset:2px;border-radius:18px!important}
+aside .card>h2:hover::after{background:rgba(237,0,42,.18)!important;color:#ED002A!important}
+
+/* softer fields: dark graphite instead of pure black */
+:root{--qs-black:#232426}
+input:not([type=range]):not([type=checkbox]):not([type=color]):not([type=radio]):not([type=file]),select,textarea,
+.grid>aside textarea,.grid>aside input:not([type=range]):not([type=checkbox]):not([type=file]):not([type=color]),.grid>aside select{background-color:#232426!important;border-color:#3a3b3f!important}
+select:hover,textarea:hover,input:not([type=range]):not([type=checkbox]):not([type=color]):not([type=radio]):not([type=file]):hover{background-color:#2a2b2d!important;border-color:#4d4e53!important}
+input:focus:not([type=range]),select:focus,textarea:focus{background-color:#232426!important;border-color:#ED002A!important}
+.seg{background:#1f2022!important}
+
+/* Cancel button while exporting: same look as index.html */
+#rdX[hidden]{display:none!important}
+.xrow #rdX{flex:0 0 auto;min-height:50px;padding:0 22px;border-radius:16px!important;background:#2a2b2d!important;color:#e6e8e2!important;border:1px solid #3a3b3f!important;box-shadow:none!important;font-weight:600;font-size:14px}
+.xrow #rdX:hover:not(:disabled){background:#3a1f26!important;border-color:#ED002A!important;color:#fff!important}
+.xrow #rdX:disabled{opacity:.6!important;color:#9b9ca0!important}
 </style>
 </body></html>
