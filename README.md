@@ -8,6 +8,7 @@ Static website for GitHub Pages.
 - Spin the Wheel: `/spin-wheel/`
 - Lyrics Maker: `/lyrics-maker/`
 - Quiz Maker: `/quiz-maker/`
+- Cup Game: `/cup-game/`
 
 Each project is served from its folder's `index.html`, so the public URLs do not end in `.html`.
 
